@@ -1,0 +1,8 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+uploads/
+.vite/
+VisionInspectAI/Manufacturing-Defect-Detection-Quality-Inspection-System/
+MyProjectBackup/

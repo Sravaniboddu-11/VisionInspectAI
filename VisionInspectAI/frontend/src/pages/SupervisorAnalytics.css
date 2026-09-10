@@ -1,0 +1,1128 @@
+/* =========================================================
+   VISIONINSPECTAI
+   SUPERVISOR ANALYTICS
+   DARK PROFESSIONAL THEME
+   ========================================================= */
+
+.supervisor-analytics-page {
+  min-height: 100vh;
+  width: 100%;
+
+  background: #111827;
+  color: #f8fafc;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+.supervisor-analytics-page *,
+.supervisor-analytics-page *::before,
+.supervisor-analytics-page *::after {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.supervisor-analytics-navbar {
+  width: 100%;
+  height: 76px;
+
+  padding: 0 4.5%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #1e293b;
+
+  border-bottom: 1px solid #334155;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.2);
+}
+
+
+/* BRAND */
+
+.supervisor-analytics-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.supervisor-analytics-brand-mark {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    rgba(37, 99, 235, 0.18);
+
+  border:
+    1px solid
+    rgba(56, 189, 248, 0.18);
+
+  border-radius: 11px;
+
+  font-size: 20px;
+}
+
+.supervisor-analytics-brand strong {
+  display: block;
+
+  color: #f8fafc;
+
+  font-size: 17px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-brand span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #64748b;
+
+  font-size: 9px;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+}
+
+
+/* NAV LINKS */
+
+.supervisor-analytics-nav-links {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.supervisor-analytics-nav-links button {
+  border: none;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  padding: 10px 13px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.supervisor-analytics-nav-links button:hover {
+  background: #273449;
+
+  color: #f8fafc;
+}
+
+.supervisor-analytics-nav-links button.active {
+  background: #273449;
+
+  color: #38bdf8;
+}
+
+.supervisor-analytics-nav-links button.logout {
+  margin-left: 9px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+.supervisor-analytics-nav-links button.logout:hover {
+  background: #38bdf8;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.supervisor-analytics-main {
+  width: 100%;
+  max-width: 1540px;
+
+  margin: 0 auto;
+
+  padding: 42px 4.5% 60px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.supervisor-analytics-page .analytics-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 28px;
+}
+
+.supervisor-analytics-page .analytics-label {
+  margin: 0 0 8px;
+
+  color: #38bdf8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.6px;
+}
+
+.supervisor-analytics-page .analytics-header h1 {
+  margin: 0;
+
+  color: #f8fafc;
+
+  font-size: 36px;
+
+  line-height: 1.15;
+
+  font-weight: 800;
+
+  letter-spacing: -1px;
+}
+
+.supervisor-analytics-page .analytics-header > div:first-child > p:last-child {
+  margin: 10px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.supervisor-analytics-page .analytics-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 14px;
+
+  background:
+    rgba(34, 197, 94, 0.08);
+
+  border:
+    1px solid
+    rgba(34, 197, 94, 0.18);
+
+  border-radius: 999px;
+
+  color: #22c55e;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.supervisor-analytics-page .analytics-status span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(34, 197, 94, 0.08);
+}
+
+
+/* =========================================================
+   KPI
+   ========================================================= */
+
+.supervisor-analytics-page .analytics-kpi-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+.supervisor-analytics-page .analytics-kpi {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 19px;
+
+  background: #1e293b;
+
+  border: 1px solid #334155;
+
+  border-radius: 13px;
+
+  box-shadow:
+    0 7px 22px
+    rgba(0, 0, 0, 0.14);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.supervisor-analytics-page .analytics-kpi:hover {
+  transform: translateY(-2px);
+
+  background: #273449;
+
+  border-color: #475569;
+}
+
+.supervisor-analytics-page .analytics-kpi-icon {
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  font-size: 18px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .analytics-kpi.blue
+.analytics-kpi-icon {
+  background:
+    rgba(56, 189, 248, 0.1);
+
+  color: #38bdf8;
+}
+
+.supervisor-analytics-page .analytics-kpi.green
+.analytics-kpi-icon {
+  background:
+    rgba(34, 197, 94, 0.1);
+
+  color: #22c55e;
+}
+
+.supervisor-analytics-page .analytics-kpi.red
+.analytics-kpi-icon {
+  background:
+    rgba(239, 68, 68, 0.1);
+
+  color: #ef4444;
+}
+
+.supervisor-analytics-page .analytics-kpi.purple
+.analytics-kpi-icon {
+  background:
+    rgba(56, 189, 248, 0.1);
+
+  color: #38bdf8;
+}
+
+.supervisor-analytics-page .analytics-kpi > div:last-child {
+  min-width: 0;
+}
+
+.supervisor-analytics-page .analytics-kpi > div:last-child > span {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 9px;
+
+  font-weight: 750;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.6px;
+}
+
+.supervisor-analytics-page .analytics-kpi strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #f8fafc;
+
+  font-size: 25px;
+
+  line-height: 1;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .analytics-kpi small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.supervisor-analytics-page .analytics-card {
+  width: 100%;
+
+  padding: 24px;
+
+  margin-bottom: 18px;
+
+  background: #1e293b;
+
+  border: 1px solid #334155;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 7px 25px
+    rgba(0, 0, 0, 0.14);
+}
+
+.supervisor-analytics-page .analytics-card-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 23px;
+}
+
+.supervisor-analytics-page .analytics-card-header h2 {
+  margin: 0;
+
+  color: #f8fafc;
+
+  font-size: 20px;
+
+  font-weight: 750;
+}
+
+.supervisor-analytics-page .analytics-card-header p {
+  margin: 6px 0 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   QUALITY OVERVIEW
+   ========================================================= */
+
+.supervisor-analytics-page .quality-overview {
+  display: grid;
+
+  grid-template-columns:
+    220px
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 35px;
+}
+
+.supervisor-analytics-page .quality-circle {
+  width: 185px;
+  height: 185px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto;
+
+  border-radius: 50%;
+
+  background:
+    conic-gradient(
+      #22c55e 0deg,
+      #22c55e
+      calc(var(--pass-rate) * 3.6deg),
+      #334155
+      calc(var(--pass-rate) * 3.6deg),
+      #334155 360deg
+    );
+
+  position: relative;
+}
+
+.supervisor-analytics-page .quality-circle::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 13px;
+
+  background: #111827;
+
+  border-radius: 50%;
+}
+
+.supervisor-analytics-page .quality-circle > div {
+  position: relative;
+
+  z-index: 2;
+
+  text-align: center;
+}
+
+.supervisor-analytics-page .quality-circle strong {
+  display: block;
+
+  color: #22c55e;
+
+  font-size: 30px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .quality-circle span {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+}
+
+.supervisor-analytics-page .quality-bars {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.supervisor-analytics-page .quality-bar-row > div:first-child {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+}
+
+.supervisor-analytics-page .quality-bar-row > div:first-child span {
+  color: #cbd5e1;
+
+  font-size: 11px;
+}
+
+.supervisor-analytics-page .quality-bar-row > div:first-child strong {
+  color: #f8fafc;
+
+  font-size: 12px;
+}
+
+.supervisor-analytics-page .analytics-progress {
+  width: 100%;
+
+  height: 9px;
+
+  background: #334155;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+.supervisor-analytics-page .analytics-progress > div {
+  height: 100%;
+
+  min-width: 3px;
+
+  border-radius: inherit;
+}
+
+.supervisor-analytics-page .analytics-progress-green {
+  background:
+    linear-gradient(
+      90deg,
+      #22c55e,
+      #16a34a
+    );
+}
+
+.supervisor-analytics-page .analytics-progress-red {
+  background:
+    linear-gradient(
+      90deg,
+      #ef4444,
+      #b91c1c
+    );
+}
+
+.supervisor-analytics-page .analytics-progress-purple {
+  background:
+    linear-gradient(
+      90deg,
+      #38bdf8,
+      #2563eb
+    );
+}
+
+
+/* =========================================================
+   TWO COLUMN
+   ========================================================= */
+
+.supervisor-analytics-page .analytics-two-column {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+.supervisor-analytics-page .analytics-two-column
+.analytics-card {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   DISTRIBUTION
+   ========================================================= */
+
+.supervisor-analytics-page .distribution-chart {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+.supervisor-analytics-page .distribution-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 13px;
+
+  background: #111827;
+
+  border: 1px solid #334155;
+
+  border-radius: 11px;
+}
+
+.supervisor-analytics-page .distribution-circle {
+  width: 82px;
+  height: 82px;
+
+  min-width: 82px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  position: relative;
+}
+
+.supervisor-analytics-page
+.distribution-circle::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 7px;
+
+  background: #111827;
+
+  border-radius: 50%;
+}
+
+.supervisor-analytics-page
+.distribution-circle strong {
+  position: relative;
+
+  z-index: 2;
+
+  color: #f8fafc;
+
+  font-size: 15px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .green-circle {
+  background:
+    conic-gradient(
+      #22c55e 0deg,
+      #22c55e
+      calc(var(--pass-rate) * 3.6deg),
+      #334155
+      calc(var(--pass-rate) * 3.6deg),
+      #334155 360deg
+    );
+}
+
+.supervisor-analytics-page .red-circle {
+  background:
+    conic-gradient(
+      #ef4444 0deg,
+      #ef4444
+      calc(var(--defect-rate, 43.7) * 3.6deg),
+      #334155
+      calc(var(--defect-rate, 43.7) * 3.6deg),
+      #334155 360deg
+    );
+}
+
+.supervisor-analytics-page
+.distribution-item > div:last-child strong {
+  display: block;
+
+  color: #f8fafc;
+
+  font-size: 13px;
+}
+
+.supervisor-analytics-page
+.distribution-item > div:last-child span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #64748b;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   SEVERITY
+   ========================================================= */
+
+.supervisor-analytics-page .severity-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+.supervisor-analytics-page .severity-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 13px 14px;
+
+  background: #111827;
+
+  border: 1px solid #334155;
+
+  border-radius: 9px;
+}
+
+.supervisor-analytics-page .severity-row > div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #cbd5e1;
+
+  font-size: 11px;
+}
+
+.supervisor-analytics-page .severity-row > strong {
+  color: #f8fafc;
+
+  font-size: 15px;
+}
+
+.supervisor-analytics-page .severity-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.supervisor-analytics-page .severity-dot.high {
+  background: #ef4444;
+}
+
+.supervisor-analytics-page .severity-dot.medium {
+  background: #f59e0b;
+}
+
+.supervisor-analytics-page .severity-dot.low {
+  background: #38bdf8;
+}
+
+
+/* =========================================================
+   OPERATIONAL INSIGHTS
+   ========================================================= */
+
+.supervisor-analytics-page .analytics-insights {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.supervisor-analytics-page .analytics-insight {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 11px;
+
+  padding: 16px;
+
+  background: #111827;
+
+  border: 1px solid #334155;
+
+  border-radius: 11px;
+}
+
+.supervisor-analytics-page .analytics-insight > span {
+  width: 34px;
+  height: 34px;
+
+  min-width: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .analytics-insight strong {
+  display: block;
+
+  color: #f8fafc;
+
+  font-size: 12px;
+}
+
+.supervisor-analytics-page .analytics-insight p {
+  margin: 5px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  line-height: 1.55;
+}
+
+.supervisor-analytics-page .analytics-insight.success {
+  border-color:
+    rgba(34, 197, 94, 0.18);
+}
+
+.supervisor-analytics-page .analytics-insight.success > span {
+  background:
+    rgba(34, 197, 94, 0.1);
+
+  color: #22c55e;
+}
+
+.supervisor-analytics-page .analytics-insight.danger {
+  border-color:
+    rgba(239, 68, 68, 0.18);
+}
+
+.supervisor-analytics-page .analytics-insight.danger > span {
+  background:
+    rgba(239, 68, 68, 0.1);
+
+  color: #ef4444;
+}
+
+.supervisor-analytics-page .analytics-insight.warning {
+  border-color:
+    rgba(245, 158, 11, 0.18);
+}
+
+.supervisor-analytics-page .analytics-insight.warning > span {
+  background:
+    rgba(245, 158, 11, 0.1);
+
+  color: #f59e0b;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .supervisor-analytics-page .analytics-kpi-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .supervisor-analytics-page .analytics-insights {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .supervisor-analytics-navbar {
+    height: auto;
+
+    padding-top: 13px;
+    padding-bottom: 13px;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+  }
+
+  .supervisor-analytics-nav-links {
+    width: 100%;
+
+    flex-wrap: wrap;
+  }
+
+  .supervisor-analytics-page .analytics-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .supervisor-analytics-page .quality-overview {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+  .supervisor-analytics-page .analytics-two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .supervisor-analytics-main {
+    padding:
+      28px
+      18px
+      45px;
+  }
+
+  .supervisor-analytics-page .analytics-header h1 {
+    font-size: 30px;
+  }
+
+  .supervisor-analytics-page .analytics-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .supervisor-analytics-page .distribution-chart {
+    grid-template-columns: 1fr;
+  }
+
+  .supervisor-analytics-page .analytics-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .supervisor-analytics-page .analytics-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .supervisor-analytics-brand span {
+    display: none;
+  }
+
+  .supervisor-analytics-nav-links button {
+    padding:
+      8px
+      9px;
+
+    font-size: 10px;
+  }
+
+  .supervisor-analytics-nav-links button.logout {
+    margin-left: 0;
+  }
+}.supervisor-analytics-page .analytics-empty {
+  padding: 40px 20px;
+
+  text-align: center;
+
+  color: #64748b;
+
+  background: #111827;
+
+  border: 1px solid #334155;
+
+  border-radius: 10px;
+
+  font-size: 11px;
+}
+
+.supervisor-analytics-page .defect-analytics-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.supervisor-analytics-page .defect-analytics-row {
+  width: 100%;
+}
+
+.supervisor-analytics-page .defect-analytics-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 6px;
+}
+
+.supervisor-analytics-page
+.defect-analytics-header span {
+  color: #cbd5e1;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.supervisor-analytics-page
+.defect-analytics-header strong {
+  color: #f8fafc;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.supervisor-analytics-page .defect-analytics-track {
+  width: 100%;
+
+  height: 8px;
+
+  background: #334155;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+.supervisor-analytics-page .defect-analytics-track div {
+  height: 100%;
+
+  min-width: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #38bdf8,
+      #2563eb
+    );
+
+  border-radius: inherit;
+}
+
+.supervisor-analytics-page
+.defect-analytics-row small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #64748b;
+
+  font-size: 8px;
+}
+
+.supervisor-analytics-page
+.severity-dot.critical {
+  background: #ef4444;
+}

@@ -1,0 +1,267 @@
+.quality-analytics-page {
+  min-height: 100vh;
+  background: #111827;
+  padding: 35px 45px;
+  color: #f8fafc;
+}
+
+.analytics-header {
+  background: #1e293b;
+  padding: 28px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+  border: 1px solid #334155;
+}
+
+.analytics-header h1 {
+  margin: 0;
+  font-size: 30px;
+  color: #f8fafc;
+}
+
+.analytics-header p {
+  margin-top: 8px;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+/* KPI CARDS */
+
+.analytics-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.analytics-card {
+  background: #1e293b;
+  padding: 25px;
+  border-radius: 14px;
+  border: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: 0.2s ease;
+}
+
+.analytics-card:hover {
+  background: #273449;
+}
+
+.card-icon {
+  font-size: 30px;
+}
+
+.analytics-card p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.analytics-card h2 {
+  margin: 7px 0 0;
+  font-size: 30px;
+  color: #f8fafc;
+}
+
+/* SECTIONS */
+
+.analytics-section {
+  background: #1e293b;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1px solid #334155;
+  margin-bottom: 25px;
+}
+
+.analytics-section h2 {
+  margin-top: 0;
+  margin-bottom: 22px;
+  color: #f8fafc;
+}
+
+/* ANALYSIS */
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.analysis-box {
+  border: 1px solid #334155;
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.analysis-box h3 {
+  margin-top: 0;
+  color: #f8fafc;
+}
+
+.analysis-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #334155;
+  color: #f8fafc;
+}
+
+.analysis-row:last-child {
+  border-bottom: none;
+}
+
+/* SEVERITY */
+
+.severity-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.severity-row.low {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.severity-row.medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.severity-row.high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-row.critical {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+/* CONFIDENCE */
+
+.confidence-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #334155;
+  background: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+.confidence-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confidence-value span {
+  color: #94a3b8;
+}
+
+.confidence-value strong {
+  font-size: 35px;
+  color: #f8fafc;
+}
+
+/* DECISIONS */
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.decision-card {
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.decision-card span {
+  font-size: 30px;
+}
+
+.decision-card h3 {
+  margin: 10px 0 5px;
+  color: #f8fafc;
+}
+
+.decision-card p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.decision-card.pass {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.decision-card.review {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.decision-card.reject {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+/* INSIGHTS */
+
+.insight-box {
+  background: #273449;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+}
+
+.insight-box p {
+  line-height: 1.7;
+  color: #cbd5e1;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .analytics-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .decision-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .quality-analytics-page {
+    padding: 20px;
+  }
+
+  .analytics-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .confidence-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
