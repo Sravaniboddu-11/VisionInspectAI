@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
-const API_URL = const API_URL = "https://visioninspectai-backend-lnih.onrender.com";
+const API_URL = "https://visioninspectai-backend-lnih.onrender.com";
 
 function DefectAnalysis() {
   const navigate = useNavigate();
