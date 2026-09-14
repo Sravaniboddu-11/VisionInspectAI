@@ -23,6 +23,7 @@ MODEL_PATH = (
     / "bottle_defect.pt"
 )
 
+
 if not MODEL_PATH.exists():
     raise FileNotFoundError(
         f"YOLO model not found at: {MODEL_PATH}"
@@ -50,6 +51,7 @@ class DetectionRequest(BaseModel):
 
 
 def normalize_defect_class(class_name):
+
     if not class_name:
         return "Unknown / Unclassified"
 
@@ -68,6 +70,7 @@ def normalize_defect_class(class_name):
 
 
 def get_defect_scores(defect_class):
+
     name = str(defect_class).lower().strip()
 
     if name == "broken_large":
@@ -83,6 +86,7 @@ def get_defect_scores(defect_class):
 
 
 def get_location_score(defect_class):
+
     name = str(defect_class).lower().strip()
 
     if name == "broken_large":
@@ -98,6 +102,7 @@ def get_location_score(defect_class):
 
 
 def get_severity_level(score):
+
     if score >= 80:
         return "Critical"
 
@@ -115,6 +120,7 @@ def get_quality_assessment(
     severity_level,
     confidence_percent,
 ):
+
     if not defect:
         return (
             "Pass",
@@ -143,6 +149,7 @@ def get_quality_assessment(
 
 
 def get_recommended_action(quality_assessment):
+
     if quality_assessment == "Pass":
         return "Product accepted."
 
@@ -349,8 +356,9 @@ async def predict_image(
             db.refresh(inspection_record)
 
             print(
-                "Inspection saved to database:",
+                "Inspection saved successfully:",
                 inspection_record.id,
+                "User:",
                 current_user["email"]
             )
 
@@ -359,98 +367,104 @@ async def predict_image(
             db.rollback()
 
             print(
-                "Inspection Database Save Error:",
+                "Inspection database save error:",
                 db_error
             )
 
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    "Inspection was completed but could not "
-                    "be saved to the database."
+                    "Inspection was completed, but "
+                    "the result could not be saved."
                 )
             )
 
         # =====================================================
-        # RETURN RESULT
+        # RETURN INSPECTION RESULT
         # =====================================================
 
         return {
 
-            "message": (
-                "Inspection completed successfully"
-            ),
+            "message":
+                "Inspection completed successfully",
 
-            "id": inspection_record.id,
+            "id":
+                inspection_record.id,
 
-            "filename": request.filename,
+            "filename":
+                request.filename,
 
-            "image_quality": image_quality,
+            "image_quality":
+                image_quality,
 
-            "prediction": prediction,
+            "prediction":
+                prediction,
 
-            "confidence": highest_confidence,
+            "confidence":
+                highest_confidence,
 
-            "confidence_percent": confidence_percent,
+            "confidence_percent":
+                confidence_percent,
 
-            "defect": defect,
+            "defect":
+                defect,
 
-            "defect_classification": (
-                defect_classification
-            ),
+            "defect_classification":
+                defect_classification,
 
-            "raw_defect_classification": (
-                raw_defect_classification
-            ),
+            "raw_defect_classification":
+                raw_defect_classification,
 
-            "detections": detections,
+            "detections":
+                detections,
 
-            "model_classes": model.names,
+            "model_classes":
+                model.names,
 
             "severity": {
 
-                "size_score": size_score,
+                "size_score":
+                    size_score,
 
-                "location_score": location_score,
+                "location_score":
+                    location_score,
 
-                "defect_type_score": (
-                    defect_type_score
-                ),
+                "defect_type_score":
+                    defect_type_score,
 
-                "confidence_score": (
-                    confidence_score
-                ),
+                "confidence_score":
+                    confidence_score,
 
-                "overall_score": (
-                    overall_severity
-                ),
+                "overall_score":
+                    overall_severity,
 
-                "level": severity_level
+                "level":
+                    severity_level
             },
 
             "quality_assessment": {
 
-                "status": quality_assessment,
+                "status":
+                    quality_assessment,
 
-                "reason": quality_reason
+                "reason":
+                    quality_reason
             },
 
             "quality_control": {
 
-                "decision": (
-                    quality_assessment.upper()
-                ),
+                "decision":
+                    quality_assessment.upper(),
 
-                "recommended_action": (
+                "recommended_action":
                     recommended_action
-                )
             },
 
-            "inspected_by": (
-                current_user["email"]
-            ),
+            "inspected_by":
+                current_user["email"],
 
-            "role": "Quality Engineer"
+            "role":
+                "Quality Engineer"
         }
 
     except HTTPException:

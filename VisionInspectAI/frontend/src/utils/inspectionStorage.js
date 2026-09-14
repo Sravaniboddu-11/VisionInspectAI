@@ -1004,4 +1004,204 @@ export const deleteInspection = (
   );
 
   return updatedInspections;
+};// ============================================================
+// SAVE A NEW INSPECTION
+// ============================================================
+
+export const saveInspection = (
+  inspection
+) => {
+
+  try {
+
+    const inspections =
+      getInspections();
+
+    const baseInspection = {
+      ...inspection,
+
+      id:
+        inspection?.id ||
+        Date.now(),
+
+      product:
+        inspection?.product ||
+        inspection?.filename ||
+        "Product",
+
+      filename:
+        inspection?.filename ||
+        "Unknown",
+
+      inspectedBy:
+        inspection?.inspectedBy ||
+        inspection?.inspected_by ||
+        "Unknown User",
+
+      createdAt:
+        inspection?.createdAt ||
+        inspection?.inspection_time ||
+        new Date().toISOString(),
+    };
+
+    const newInspection =
+      normalizeInspection(
+        baseInspection
+      );
+
+    if (!newInspection) {
+
+      console.error(
+        "Invalid inspection data."
+      );
+
+      return null;
+    }
+
+    const existingIndex =
+      inspections.findIndex(
+        (item) =>
+          String(item.id) ===
+          String(newInspection.id)
+      );
+
+    if (
+      existingIndex !== -1
+    ) {
+
+      inspections[
+        existingIndex
+      ] = newInspection;
+
+    } else {
+
+      inspections.push(
+        newInspection
+      );
+    }
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        inspections
+      )
+    );
+
+    console.log(
+      "Inspection saved locally:",
+      newInspection
+    );
+
+    return newInspection;
+
+  } catch (error) {
+
+    console.error(
+      "Error saving inspection:",
+      error
+    );
+
+    return null;
+  }
+};
+
+
+// ============================================================
+// REPLACE LOCAL INSPECTION CACHE
+//
+// This receives inspection records from PostgreSQL.
+// Existing dashboards continue using getInspections().
+// ============================================================
+
+export const replaceInspections = (
+  inspections
+) => {
+
+  try {
+
+    if (
+      !Array.isArray(inspections)
+    ) {
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([])
+      );
+
+      return [];
+    }
+
+    const normalized =
+      inspections
+        .map(
+          normalizeInspection
+        )
+        .filter(
+          Boolean
+        );
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        normalized
+      )
+    );
+
+    console.log(
+      "Inspection history synchronized:",
+      normalized.length
+    );
+
+    return normalized;
+
+  } catch (error) {
+
+    console.error(
+      "Error synchronizing inspection history:",
+      error
+    );
+
+    return [];
+  }
+};
+
+
+// ============================================================
+// DELETE ALL INSPECTIONS
+// ============================================================
+
+export const clearInspections = () => {
+
+  localStorage.removeItem(
+    STORAGE_KEY
+  );
+};
+
+
+// ============================================================
+// DELETE ONE INSPECTION
+// ============================================================
+
+export const deleteInspection = (
+  id
+) => {
+
+  const inspections =
+    getInspections();
+
+  const updatedInspections =
+    inspections.filter(
+      (item) =>
+        String(item.id) !==
+        String(id)
+    );
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(
+      updatedInspections
+    )
+  );
+
+  return updatedInspections;
 };

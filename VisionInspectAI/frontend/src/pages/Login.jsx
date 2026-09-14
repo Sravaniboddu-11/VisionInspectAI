@@ -25,7 +25,6 @@ function Login() {
     setLoading(true);
 
     try {
-
       // ======================================================
       // LOGIN
       // ======================================================
@@ -43,8 +42,7 @@ function Login() {
         response.data
       );
 
-      const user =
-        response.data.user;
+      const user = response.data.user;
 
       if (!user) {
         alert(
@@ -58,16 +56,14 @@ function Login() {
       // ======================================================
 
       if (user.role !== role) {
-
         alert(
           `Role mismatch.\n\nThis account is registered as: ${user.role}`
         );
-
         return;
       }
 
       // ======================================================
-      // SAVE LOGIN
+      // SAVE LOGIN SESSION
       // ======================================================
 
       const token =
@@ -84,11 +80,16 @@ function Login() {
       );
 
       // ======================================================
-      // LOAD USER'S PERSISTENT INSPECTION HISTORY
+      // LOAD STORED INSPECTIONS
+      //
+      // Quality Engineer:
+      //   returns only that QE's inspections
+      //
+      // Factory Supervisor:
+      //   returns all stored inspections
       // ======================================================
 
       try {
-
         const inspectionResponse =
           await api.get(
             "/reports/my-inspections",
@@ -104,31 +105,26 @@ function Login() {
           inspectionResponse.data?.inspections;
 
         replaceInspections(
-          Array.isArray(
-            savedInspections
-          )
+          Array.isArray(savedInspections)
             ? savedInspections
             : []
         );
 
         console.log(
-          "Previous inspections loaded:",
-          Array.isArray(
-            savedInspections
-          )
+          "Inspection history loaded:",
+          Array.isArray(savedInspections)
             ? savedInspections.length
             : 0
         );
 
       } catch (historyError) {
-
         console.error(
           "Inspection history loading error:",
           historyError
         );
 
-        // Login should still continue
-        // even if history loading fails.
+        // Clear old browser data so records
+        // from another login are not shown.
         replaceInspections([]);
       }
 
@@ -144,29 +140,19 @@ function Login() {
         user.role ===
         "Factory Supervisor"
       ) {
-
-        navigate(
-          "/supervisor"
-        );
+        navigate("/supervisor");
 
       } else if (
         user.role ===
         "Quality Engineer"
       ) {
-
-        navigate(
-          "/dashboard"
-        );
+        navigate("/dashboard");
 
       } else {
-
-        alert(
-          "Unknown user role."
-        );
+        alert("Unknown user role.");
       }
 
     } catch (error) {
-
       console.error(
         "Login Error:",
         error
@@ -211,7 +197,6 @@ function Login() {
       }
 
     } finally {
-
       setLoading(false);
     }
   };
@@ -238,13 +223,11 @@ function Login() {
           </h2>
 
           <p>
-            AI-powered visual inspection
-            for reliable and efficient
-            manufacturing quality control.
+            AI-powered visual inspection for reliable and
+            efficient manufacturing quality control.
           </p>
 
           <div className="login-features">
-
             <p>
               ✓ Automated Defect Detection
             </p>
@@ -256,8 +239,8 @@ function Login() {
             <p>
               ✓ Production Analytics
             </p>
-
           </div>
+
         </div>
 
         <div className="login-card">
@@ -345,13 +328,10 @@ function Login() {
           </form>
 
           <p className="register-link">
-
             Don't have an account?{" "}
-
             <Link to="/register">
               Create Account
             </Link>
-
           </p>
 
         </div>

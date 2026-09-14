@@ -13,10 +13,6 @@ router = APIRouter(
 
 
 def normalize_defect_name(name):
-    """
-    Converts different versions of the same defect
-    into one consistent name.
-    """
 
     if not name:
         return None
@@ -42,6 +38,8 @@ def normalize_defect_name(name):
         "no_defect": "No Defect",
         "no defect": "No Defect",
 
+        "contamination": "Contamination",
+
         "unknown": "Unknown / Unclassified",
         "unknown / unclassified": "Unknown / Unclassified",
     }
@@ -53,7 +51,13 @@ def normalize_defect_name(name):
 
 
 # ============================================================
-# USER'S OWN INSPECTION HISTORY
+# GET INSPECTION HISTORY
+#
+# QUALITY ENGINEER:
+#     only their own records
+#
+# FACTORY SUPERVISOR:
+#     all stored records
 # ============================================================
 
 @router.get("/my-inspections")
@@ -64,16 +68,50 @@ def get_my_inspections(
 
     user_email = current_user["email"]
 
-    inspections = (
-        db.query(Inspection)
-        .filter(
-            Inspection.inspected_by == user_email
-        )
-        .order_by(
-            Inspection.id.desc()
-        )
-        .all()
+    user_role = current_user.get(
+        "role",
+        ""
     )
+
+    # --------------------------------------------------------
+    # QUALITY ENGINEER
+    # --------------------------------------------------------
+
+    if user_role == "Quality Engineer":
+
+        inspections = (
+            db.query(Inspection)
+            .filter(
+                Inspection.inspected_by ==
+                user_email
+            )
+            .order_by(
+                Inspection.id.desc()
+            )
+            .all()
+        )
+
+    # --------------------------------------------------------
+    # FACTORY SUPERVISOR
+    # --------------------------------------------------------
+
+    elif user_role == "Factory Supervisor":
+
+        inspections = (
+            db.query(Inspection)
+            .order_by(
+                Inspection.id.desc()
+            )
+            .all()
+        )
+
+    # --------------------------------------------------------
+    # OTHER ROLE
+    # --------------------------------------------------------
+
+    else:
+
+        inspections = []
 
     results = []
 
@@ -84,164 +122,201 @@ def get_my_inspections(
         )
 
         if not defect_type:
+
             defect_type = (
                 "No Defect"
                 if not inspection.defect
-                else "Unknown / Unclassified"
+                else
+                "Unknown / Unclassified"
             )
-
-        severity_score = (
-            float(inspection.severity_score)
-            if inspection.severity_score is not None
-            else 0
-        )
 
         confidence = (
-            float(inspection.confidence)
+            float(
+                inspection.confidence
+            )
             if inspection.confidence is not None
-            else 0
+            else 0.0
         )
 
-        quality_decision = (
-            str(
-                inspection.quality_decision
-                or ""
+        severity_score = (
+            float(
+                inspection.severity_score
             )
-            .strip()
-            .upper()
+            if inspection.severity_score is not None
+            else 0.0
         )
+
+        if (
+            confidence >= 0
+            and confidence <= 1
+        ):
+
+            confidence_percent = (
+                confidence * 100
+            )
+
+        else:
+
+            confidence_percent = confidence
+
+        quality_decision = str(
+            inspection.quality_decision or ""
+        ).strip().upper()
 
         if quality_decision == "PASSED":
+
             quality_decision = "PASS"
 
-        elif quality_decision == "FAILED":
+        elif quality_decision in [
+            "FAILED",
+            "FAIL"
+        ]:
+
             quality_decision = "REJECT"
 
         results.append({
 
-            "id": inspection.id,
+            "id":
+                inspection.id,
 
-            "filename": inspection.filename,
+            "filename":
+                inspection.filename,
 
-            "product": inspection.filename,
+            "product":
+                inspection.filename,
 
-            "prediction": inspection.prediction,
+            "productName":
+                inspection.filename,
 
-            "confidence": confidence,
+            "prediction":
+                inspection.prediction,
 
-            "confidence_percent": round(
-                confidence * 100,
-                2
-            ) if confidence <= 1 else round(
+            "confidence":
                 confidence,
-                2
-            ),
 
-            "defect": bool(
-                inspection.defect
-            ),
+            "confidence_percent":
+                round(
+                    confidence_percent,
+                    2
+                ),
 
-            "defectType": defect_type,
+            "defect":
+                bool(
+                    inspection.defect
+                ),
 
-            "defect_type": defect_type,
+            "defectType":
+                defect_type,
 
-            "defectClassification": defect_type,
+            "defect_type":
+                defect_type,
 
-            "defect_classification": defect_type,
+            "defectClassification":
+                defect_type,
 
-            "sizeScore": 0,
+            "defect_classification":
+                defect_type,
 
-            "locationScore": 0,
+            "sizeScore":
+                0,
 
-            "defectTypeScore": 0,
+            "locationScore":
+                0,
 
-            "confidenceScore": round(
-                confidence * 100,
-                2
-            ) if confidence <= 1 else round(
-                confidence,
-                2
-            ),
+            "defectTypeScore":
+                0,
 
-            "severityScore": severity_score,
+            "confidenceScore":
+                round(
+                    confidence_percent,
+                    2
+                ),
 
-            "severity_score": severity_score,
+            "severityScore":
+                severity_score,
 
-            "severityLevel": (
+            "severity_score":
+                severity_score,
+
+            "severityLevel":
                 inspection.severity_level
-                or "Low"
-            ),
+                or "Low",
 
-            "severity_level": (
+            "severity_level":
                 inspection.severity_level
-                or "Low"
-            ),
+                or "Low",
 
-            "qualityDecision": (
-                quality_decision
-            ),
+            "qualityDecision":
+                quality_decision,
 
-            "quality_decision": (
-                quality_decision
-            ),
+            "quality_decision":
+                quality_decision,
 
-            "recommendedAction": (
+            "decision":
+                quality_decision,
+
+            "recommendedAction":
                 inspection.recommended_action
-                or ""
-            ),
+                or "",
 
-            "recommended_action": (
+            "recommended_action":
                 inspection.recommended_action
-                or ""
-            ),
+                or "",
 
-            "inspectedBy": (
+            "inspectedBy":
                 inspection.inspected_by
-                or user_email
-            ),
+                or "Unknown User",
 
-            "inspected_by": (
+            "inspected_by":
                 inspection.inspected_by
-                or user_email
-            ),
+                or "Unknown User",
 
-            "inspectedByName": (
+            "inspectedByName":
                 current_user.get(
                     "full_name",
                     "User"
-                )
-            ),
+                ),
 
-            "role": (
+            "role":
                 current_user.get(
                     "role",
                     "Quality Engineer"
-                )
-            ),
+                ),
 
-            "createdAt": (
-                inspection.inspection_time.isoformat()
-                if inspection.inspection_time
-                else None
-            ),
+            "createdAt":
+                (
+                    inspection.inspection_time.isoformat()
+                    if inspection.inspection_time
+                    else None
+                ),
 
-            "inspection_time": (
-                inspection.inspection_time.isoformat()
-                if inspection.inspection_time
-                else None
-            ),
+            "inspection_time":
+                (
+                    inspection.inspection_time.isoformat()
+                    if inspection.inspection_time
+                    else None
+                ),
 
-            "status": (
-                "Defective"
-                if inspection.defect
-                else "Passed"
-            ),
+            "status":
+                (
+                    "Defective"
+                    if inspection.defect
+                    else "Passed"
+                ),
         })
 
     return {
-        "email": user_email,
-        "total": len(results),
-        "inspections": results
+        "email":
+            user_email,
+
+        "role":
+            user_role,
+
+        "total":
+            len(results),
+
+        "inspections":
+            results
     }
 
 
@@ -257,7 +332,9 @@ def production_quality_report(
 
     inspections = (
         db.query(Inspection)
-        .order_by(Inspection.id.desc())
+        .order_by(
+            Inspection.id.desc()
+        )
         .all()
     )
 
@@ -291,6 +368,7 @@ def production_quality_report(
             "pass",
             "good"
         ]:
+
             passed += 1
 
         elif prediction in [
@@ -299,22 +377,30 @@ def production_quality_report(
             "failed",
             "fail"
         ]:
+
             defective += 1
 
         raw_defect = (
             inspection.defect_classification
         )
 
-        normalized_defect = normalize_defect_name(
-            raw_defect
+        normalized_defect = (
+            normalize_defect_name(
+                raw_defect
+            )
         )
 
-        if normalized_defect and normalized_defect not in [
-            "No Defect",
-            "Unknown / Unclassified"
-        ]:
+        if (
+            normalized_defect
+            and normalized_defect not in [
+                "No Defect",
+                "Unknown / Unclassified"
+            ]
+        ):
 
-            defect_types[normalized_defect] = (
+            defect_types[
+                normalized_defect
+            ] = (
                 defect_types.get(
                     normalized_defect,
                     0
@@ -399,15 +485,18 @@ def production_quality_report(
             ).strip().lower()
 
             if decision == "pass":
+
                 pass_count += 1
 
             elif decision == "review":
+
                 review_count += 1
 
             elif decision in [
                 "reject",
                 "fail"
             ]:
+
                 reject_count += 1
 
     defect_rate = (
