@@ -86,48 +86,45 @@ function DefectAnalysis() {
 
     if (
       normalized === "broken_small" ||
-      normalized.includes("broken_small") ||
-      normalized.includes("small_broken") ||
-      normalized.includes("broken_small_defect")
+      normalized.includes("broken_small")
     ) {
       return "Broken Small";
     }
 
     if (
       normalized === "broken_large" ||
-      normalized.includes("broken_large") ||
-      normalized.includes("large_broken") ||
-      normalized.includes("broken_large_defect")
+      normalized.includes("broken_large")
     ) {
       return "Broken Large";
     }
 
     if (
-      normalized.includes("contamination") ||
-      normalized.includes("contaminated")
+      normalized.includes("contamination")
     ) {
       return "Contamination";
     }
 
     if (
-      normalized.includes("manufacturing_defect") ||
       normalized.includes("manufacturing")
     ) {
       return "Manufacturing Defect";
     }
 
     if (
-      normalized.includes("missing_component") ||
-      normalized.includes("missing_part")
+      normalized.includes("missing_component")
     ) {
       return "Missing Component";
     }
 
-    if (normalized.includes("crack")) {
+    if (
+      normalized.includes("crack")
+    ) {
       return "Crack";
     }
 
-    if (normalized.includes("scratch")) {
+    if (
+      normalized.includes("scratch")
+    ) {
       return "Scratch";
     }
 
@@ -142,16 +139,17 @@ function DefectAnalysis() {
   };
 
   // ============================================================
-  // DEFECT TYPES
-  // ============================================================
+// DEFECT TYPES
+// ============================================================
 
-  const defectTypes = useMemo(() => {
-    if (!report?.defect_types) {
-      return [];
-    }
+const defectTypes = useMemo(() => {
+  const normalizedDefects = {
+    "Broken Small": 0,
+    "Broken Large": 0,
+    "Contamination": 0,
+  };
 
-    const normalizedDefects = {};
-
+  if (report?.defect_types) {
     Object.entries(report.defect_types).forEach(
       ([name, count]) => {
         const cleanName = String(name)
@@ -185,20 +183,12 @@ function DefectAnalysis() {
           numericCount;
       }
     );
+  }
 
-    return Object.entries(normalizedDefects).sort(
-      ([, a], [, b]) => b - a
-    );
-  }, [report]);
-
-  const maxDefectCount =
-    defectTypes.length > 0
-      ? Math.max(
-          ...defectTypes.map(
-            (item) => item[1]
-          )
-        )
-      : 1;
+  return Object.entries(normalizedDefects).sort(
+    ([, a], [, b]) => b - a
+  );
+}, [report]);
 
   // ============================================================
   // VALUES
@@ -249,6 +239,14 @@ function DefectAnalysis() {
   // ============================================================
   // TOTAL CLASSIFIED DEFECTS
   // ============================================================
+
+  /*
+    This total is based on all defect classifications
+    returned by the backend.
+
+    It allows Broken Small to appear even when its
+    quality decision is REVIEW instead of REJECT.
+  */
 
   const totalClassifiedDefects =
     defectTypes.reduce(
