@@ -23,7 +23,7 @@ function Login() {
 
     try {
       const response = await api.post("/auth/login", {
-        email: email,
+        email: email.trim(),
         password: password,
       });
 
@@ -31,22 +31,23 @@ function Login() {
 
       const user = response.data.user;
 
-      // Check that selected role matches registered role
+      if (!user) {
+        alert("Login successful, but user details were not received.");
+        return;
+      }
+
       if (user.role !== role) {
         alert(
           `Role mismatch.\n\nThis account is registered as: ${user.role}`
         );
-        setLoading(false);
         return;
       }
 
-      // Save login information
       localStorage.setItem("token", response.data.access_token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      alert(`Welcome ${user.name}!`);
+      alert(`Welcome ${user.full_name}!`);
 
-      // ROLE-BASED REDIRECTION
       if (user.role === "Factory Supervisor") {
         navigate("/supervisor");
       } else if (user.role === "Quality Engineer") {
@@ -61,12 +62,19 @@ function Login() {
         console.log("STATUS:", error.response.status);
         console.log("BACKEND ERROR:", error.response.data);
 
+        const backendMessage =
+          error.response.data?.detail ||
+          error.response.data?.message ||
+          "Login failed.";
+
+        alert(`Login failed:\n\n${backendMessage}`);
+      } else if (error.request) {
+        console.log("No response received from backend.");
         alert(
-          "Login failed:\n\n" +
-            JSON.stringify(error.response.data, null, 2)
+          "Cannot connect to backend.\n\nPlease check the backend URL and CORS settings."
         );
       } else {
-        alert("Cannot connect to backend.");
+        alert(`Request error:\n\n${error.message}`);
       }
     } finally {
       setLoading(false);
@@ -77,7 +85,6 @@ function Login() {
     <div className="login-page">
       <div className="login-container">
 
-        {/* LEFT SIDE */}
         <div className="login-left">
           <div className="brand-icon">🔍</div>
 
@@ -101,9 +108,10 @@ function Login() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="login-card">
-          <div className="login-kicker">QUALITY CONTROL PLATFORM</div>
+          <div className="login-kicker">
+            QUALITY CONTROL PLATFORM
+          </div>
 
           <h2>Welcome Back</h2>
 
@@ -113,45 +121,45 @@ function Login() {
 
           <form onSubmit={loginUser}>
 
-            {/* EMAIL */}
-            <label>Email Address</label>
+            <label htmlFor="email">Email Address</label>
 
             <input
+              id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
-            {/* ROLE */}
-            <label>Select Role</label>
+            <label htmlFor="role">Select Role</label>
 
             <select
+              id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
+              required
             >
               <option value="">Select your role</option>
-
               <option value="Quality Engineer">
                 Quality Engineer
               </option>
-
               <option value="Factory Supervisor">
                 Factory Supervisor
               </option>
             </select>
 
-            {/* PASSWORD */}
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
 
             <input
+              id="password"
               type="password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
-            {/* SIGN IN */}
             <button type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
