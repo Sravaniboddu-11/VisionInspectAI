@@ -9,90 +9,131 @@ function Upload() {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleImage = (e) => {
     const file = e.target.files[0];
 
-    if (file) {
-      setImage(file);
-      setPreview(
-        URL.createObjectURL(file)
-      );
-      setMessage("");
+    if (!file) {
+      return;
     }
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file.");
+      return;
+    }
+
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
+    setMessage("");
   };
 
   const uploadImage = async () => {
     if (!image) {
-      alert(
-        "Please select an image."
-      );
+      alert("Please select an image.");
       return;
     }
 
-    const formData =
-      new FormData();
-
-    formData.append(
-      "file",
-      image
-    );
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      alert(
-        "Please login again."
-      );
+      alert("Please login again.");
       return;
     }
 
+    const formData = new FormData();
+
+    formData.append("file", image);
+
+    setLoading(true);
+    setMessage("");
+
     try {
-      const response =
-        await api.post(
-          "/upload/image",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type":
-                "multipart/form-data",
-            },
-          }
+      const response = await api.post(
+        "/upload/image",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(
+        "Upload Response:",
+        response.data
+      );
+
+      const filename =
+        response.data?.filename;
+
+      if (!filename) {
+        throw new Error(
+          "Backend did not return an image filename."
         );
+      }
 
       setMessage(
-        response.data.message
+        response.data?.message ||
+        "Image uploaded successfully."
       );
 
       localStorage.setItem(
         "uploadedImage",
-        response.data.filename
+        filename
+      );
+
+      localStorage.setItem(
+        "uploadedImageUrl",
+        `https://visioninspectai-jvbu.onrender.com/uploads/${encodeURIComponent(
+          filename
+        )}`
       );
 
       alert(
         "Image uploaded successfully!"
       );
-
     } catch (error) {
-      console.log(
+      console.error(
         "Upload Error:",
         error
       );
 
       if (error.response) {
+        console.log(
+          "Upload Status:",
+          error.response.status
+        );
+
+        console.log(
+          "Upload Backend Error:",
+          error.response.data
+        );
+
+        const backendMessage =
+          error.response.data?.detail ||
+          error.response.data?.message ||
+          "Upload failed.";
+
         alert(
-          error.response.data.detail ||
-            "Upload failed."
+          `Upload failed:\n\n${backendMessage}`
+        );
+      } else if (error.request) {
+        console.error(
+          "No response received from backend:",
+          error.request
+        );
+
+        alert(
+          `Cannot connect to backend.\n\n${error.message}`
         );
       } else {
         alert(
-          "Cannot connect to backend."
+          `Request error:\n\n${error.message}`
         );
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -236,11 +277,8 @@ function Upload() {
                   <span>
                     {image
                       ? `${(
-                          image.size /
-                          1024
-                        ).toFixed(
-                          1
-                        )} KB`
+                          image.size / 1024
+                        ).toFixed(1)} KB`
                       : "Image selected"}
                   </span>
 
@@ -257,13 +295,17 @@ function Upload() {
               type="button"
               className="upload-button"
               onClick={uploadImage}
-              disabled={!image}
+              disabled={!image || loading}
             >
+
               <span>
                 ↑
               </span>
 
-              Upload Image
+              {loading
+                ? "Uploading..."
+                : "Upload Image"}
+
             </button>
 
           </div>
