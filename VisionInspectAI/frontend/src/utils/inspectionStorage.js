@@ -1,6 +1,7 @@
 const STORAGE_KEY =
   "visionInspect_inspections";
 
+
 // ============================================================
 // NORMALIZE DECISION
 // ============================================================
@@ -65,61 +66,42 @@ const normalizeDefectType = (value) => {
 
   if (
     normalized === "unknown" ||
-    normalized ===
-      "unknown / unclassified" ||
-    normalized ===
-      "unknown/unclassified" ||
-    normalized ===
-      "unclassified"
+    normalized === "unknown / unclassified" ||
+    normalized === "unknown/unclassified" ||
+    normalized === "unclassified"
   ) {
     return "Unknown / Unclassified";
   }
 
   if (
-    normalized.includes(
-      "broken_small"
-    ) ||
-    normalized.includes(
-      "broken small"
-    )
+    normalized.includes("broken_small") ||
+    normalized.includes("broken small")
   ) {
     return "Broken Small";
   }
 
   if (
-    normalized.includes(
-      "broken_large"
-    ) ||
-    normalized.includes(
-      "broken large"
-    )
+    normalized.includes("broken_large") ||
+    normalized.includes("broken large")
   ) {
     return "Broken Large";
   }
 
   if (
-    normalized.includes(
-      "contamination"
-    )
+    normalized.includes("contamination")
   ) {
     return "Contamination";
   }
 
   if (
-    normalized.includes(
-      "manufacturing"
-    )
+    normalized.includes("manufacturing")
   ) {
     return "Manufacturing Defect";
   }
 
   if (
-    normalized.includes(
-      "missing"
-    ) &&
-    normalized.includes(
-      "component"
-    )
+    normalized.includes("missing") &&
+    normalized.includes("component")
   ) {
     return "Missing Component";
   }
@@ -163,10 +145,8 @@ const isActualDefectType = (
     normalized !== "passed" &&
     normalized !== "pass" &&
     normalized !== "unknown" &&
-    normalized !==
-      "unknown / unclassified" &&
-    normalized !==
-      "unknown/unclassified" &&
+    normalized !== "unknown / unclassified" &&
+    normalized !== "unknown/unclassified" &&
     normalized !== "unclassified"
   );
 };
@@ -314,7 +294,7 @@ const normalizeInspection = (
     inspection.defect === true;
 
   // ----------------------------------------------------------
-  // DETECT WHETHER THIS IS ACTUALLY A PASSED RESULT
+  // QUALITY DECISION
   // ----------------------------------------------------------
 
   let qualityDecision =
@@ -326,37 +306,19 @@ const normalizeInspection = (
     );
 
   const predictionIndicatesPassed =
-    predictionLower ===
-      "passed" ||
-    predictionLower ===
-      "pass" ||
-    predictionLower ===
-      "good" ||
-    predictionLower ===
-      "normal";
+    predictionLower === "passed" ||
+    predictionLower === "pass" ||
+    predictionLower === "good" ||
+    predictionLower === "normal";
 
   const predictionIndicatesDefect =
-    predictionLower.includes(
-      "defective"
-    ) ||
-    predictionLower.includes(
-      "defect"
-    ) ||
-    predictionLower.includes(
-      "broken"
-    ) ||
-    predictionLower.includes(
-      "contamination"
-    ) ||
-    predictionLower.includes(
-      "crack"
-    ) ||
-    predictionLower.includes(
-      "scratch"
-    ) ||
-    predictionLower.includes(
-      "missing"
-    );
+    predictionLower.includes("defective") ||
+    predictionLower.includes("defect") ||
+    predictionLower.includes("broken") ||
+    predictionLower.includes("contamination") ||
+    predictionLower.includes("crack") ||
+    predictionLower.includes("scratch") ||
+    predictionLower.includes("missing");
 
   // ----------------------------------------------------------
   // CASE 1:
@@ -397,9 +359,6 @@ const normalizeInspection = (
       prediction:
         "Passed",
 
-      // No AI confidence should be
-      // reported for an accepted
-      // No Defect result.
       confidence:
         null,
 
@@ -435,6 +394,7 @@ const normalizeInspection = (
 
       inspectedBy:
         inspection.inspectedBy ||
+        inspection.inspected_by ||
         "Unknown User",
 
       inspectedByName:
@@ -447,6 +407,7 @@ const normalizeInspection = (
 
       createdAt:
         inspection.createdAt ||
+        inspection.inspection_time ||
         new Date().toISOString(),
 
       status:
@@ -457,11 +418,6 @@ const normalizeInspection = (
   // ----------------------------------------------------------
   // CASE 2:
   // DEFECTIVE + NO DEFECT
-  //
-  // This fixes the two inconsistent
-  // records such as:
-  //
-  // Defective | No Defect | 0%
   // ----------------------------------------------------------
 
   const contradictoryResult =
@@ -532,6 +488,7 @@ const normalizeInspection = (
 
       inspectedBy:
         inspection.inspectedBy ||
+        inspection.inspected_by ||
         "Unknown User",
 
       inspectedByName:
@@ -544,6 +501,7 @@ const normalizeInspection = (
 
       createdAt:
         inspection.createdAt ||
+        inspection.inspection_time ||
         new Date().toISOString(),
 
       status:
@@ -569,9 +527,6 @@ const normalizeInspection = (
 
     defect = true;
 
-    // If a real defect exists but
-    // classification is missing,
-    // keep it separate as unknown.
     if (
       !defectType ||
       defectType ===
@@ -581,13 +536,9 @@ const normalizeInspection = (
         "Unknown / Unclassified";
     }
 
-    // Preserve REVIEW when it
-    // was explicitly assigned.
     if (
-      qualityDecision !==
-        "REVIEW" &&
-      qualityDecision !==
-        "REJECT"
+      qualityDecision !== "REVIEW" &&
+      qualityDecision !== "REJECT"
     ) {
       qualityDecision =
         "REVIEW";
@@ -674,15 +625,16 @@ const normalizeInspection = (
 
       recommendedAction:
         inspection.recommendedAction ||
+        inspection.recommended_action ||
         (
-          qualityDecision ===
-            "REJECT"
+          qualityDecision === "REJECT"
             ? "Product rejected due to detected defect."
             : "Product requires quality engineer review."
         ),
 
       inspectedBy:
         inspection.inspectedBy ||
+        inspection.inspected_by ||
         "Unknown User",
 
       inspectedByName:
@@ -695,6 +647,7 @@ const normalizeInspection = (
 
       createdAt:
         inspection.createdAt ||
+        inspection.inspection_time ||
         new Date().toISOString(),
 
       status:
@@ -756,6 +709,7 @@ const normalizeInspection = (
 
     inspectedBy:
       inspection.inspectedBy ||
+      inspection.inspected_by ||
       "Unknown User",
 
     inspectedByName:
@@ -768,6 +722,7 @@ const normalizeInspection = (
 
     createdAt:
       inspection.createdAt ||
+      inspection.inspection_time ||
       new Date().toISOString(),
 
     status:
@@ -779,8 +734,7 @@ const normalizeInspection = (
 // ============================================================
 // GET ALL SAVED INSPECTIONS
 //
-// IMPORTANT:
-// This also migrates existing records.
+// Existing dashboards continue using this function.
 // ============================================================
 
 export const getInspections = () => {
@@ -814,10 +768,6 @@ export const getInspections = () => {
           Boolean
         );
 
-    // --------------------------------------------------------
-    // SAVE NORMALIZED DATA BACK
-    // --------------------------------------------------------
-
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(
@@ -841,6 +791,10 @@ export const getInspections = () => {
 
 // ============================================================
 // SAVE A NEW INSPECTION
+//
+// The backend now permanently saves the inspection in
+// PostgreSQL. This function keeps a local copy so that the
+// existing dashboards continue working without modification.
 // ============================================================
 
 export const saveInspection = (
@@ -852,27 +806,32 @@ export const saveInspection = (
     const inspections =
       getInspections();
 
-    const baseInspection =
-      {
-        ...inspection,
+    const baseInspection = {
+      ...inspection,
 
-        id:
-          inspection?.id ||
-          Date.now(),
+      id:
+        inspection?.id ||
+        Date.now(),
 
-        product:
-          inspection?.product ||
-          inspection?.filename ||
-          "Product",
+      product:
+        inspection?.product ||
+        inspection?.filename ||
+        "Product",
 
-        filename:
-          inspection?.filename ||
-          "Unknown",
+      filename:
+        inspection?.filename ||
+        "Unknown",
 
-        createdAt:
-          inspection?.createdAt ||
-          new Date().toISOString(),
-      };
+      inspectedBy:
+        inspection?.inspectedBy ||
+        inspection?.inspected_by ||
+        "Unknown User",
+
+      createdAt:
+        inspection?.createdAt ||
+        inspection?.inspection_time ||
+        new Date().toISOString(),
+    };
 
     const newInspection =
       normalizeInspection(
@@ -888,9 +847,32 @@ export const saveInspection = (
       return null;
     }
 
-    inspections.push(
-      newInspection
-    );
+    /*
+     * Prevent duplicate local records when the same
+     * PostgreSQL inspection is returned again.
+     */
+
+    const existingIndex =
+      inspections.findIndex(
+        (item) =>
+          String(item.id) ===
+          String(newInspection.id)
+      );
+
+    if (
+      existingIndex !== -1
+    ) {
+
+      inspections[
+        existingIndex
+      ] = newInspection;
+
+    } else {
+
+      inspections.push(
+        newInspection
+      );
+    }
 
     localStorage.setItem(
       STORAGE_KEY,
@@ -900,7 +882,7 @@ export const saveInspection = (
     );
 
     console.log(
-      "Inspection saved successfully:",
+      "Inspection saved locally:",
       newInspection
     );
 
@@ -919,10 +901,74 @@ export const saveInspection = (
 
 
 // ============================================================
+// REPLACE LOCAL INSPECTION CACHE
+//
+// Called after login with the inspections retrieved from
+// PostgreSQL for the logged-in user.
+// ============================================================
+
+export const replaceInspections = (
+  inspections
+) => {
+
+  try {
+
+    if (
+      !Array.isArray(inspections)
+    ) {
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([])
+      );
+
+      return [];
+    }
+
+    const normalized =
+      inspections
+        .map(
+          normalizeInspection
+        )
+        .filter(
+          Boolean
+        );
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        normalized
+      )
+    );
+
+    console.log(
+      "Inspection history synchronized:",
+      normalized.length
+    );
+
+    return normalized;
+
+  } catch (error) {
+
+    console.error(
+      "Error synchronizing inspection history:",
+      error
+    );
+
+    return [];
+  }
+};
+
+
+// ============================================================
 // DELETE ALL INSPECTIONS
+//
+// This clears only the browser cache.
+// Database records remain stored permanently.
 // ============================================================
 
 export const clearInspections = () => {
+
   localStorage.removeItem(
     STORAGE_KEY
   );
@@ -931,6 +977,9 @@ export const clearInspections = () => {
 
 // ============================================================
 // DELETE ONE INSPECTION
+//
+// This clears only the browser cache.
+// Database records remain stored permanently.
 // ============================================================
 
 export const deleteInspection = (
@@ -943,7 +992,8 @@ export const deleteInspection = (
   const updatedInspections =
     inspections.filter(
       (item) =>
-        item.id !== id
+        String(item.id) !==
+        String(id)
     );
 
   localStorage.setItem(

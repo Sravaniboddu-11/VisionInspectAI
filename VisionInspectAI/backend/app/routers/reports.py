@@ -52,6 +52,203 @@ def normalize_defect_name(name):
     )
 
 
+# ============================================================
+# USER'S OWN INSPECTION HISTORY
+# ============================================================
+
+@router.get("/my-inspections")
+def get_my_inspections(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    user_email = current_user["email"]
+
+    inspections = (
+        db.query(Inspection)
+        .filter(
+            Inspection.inspected_by == user_email
+        )
+        .order_by(
+            Inspection.id.desc()
+        )
+        .all()
+    )
+
+    results = []
+
+    for inspection in inspections:
+
+        defect_type = normalize_defect_name(
+            inspection.defect_classification
+        )
+
+        if not defect_type:
+            defect_type = (
+                "No Defect"
+                if not inspection.defect
+                else "Unknown / Unclassified"
+            )
+
+        severity_score = (
+            float(inspection.severity_score)
+            if inspection.severity_score is not None
+            else 0
+        )
+
+        confidence = (
+            float(inspection.confidence)
+            if inspection.confidence is not None
+            else 0
+        )
+
+        quality_decision = (
+            str(
+                inspection.quality_decision
+                or ""
+            )
+            .strip()
+            .upper()
+        )
+
+        if quality_decision == "PASSED":
+            quality_decision = "PASS"
+
+        elif quality_decision == "FAILED":
+            quality_decision = "REJECT"
+
+        results.append({
+
+            "id": inspection.id,
+
+            "filename": inspection.filename,
+
+            "product": inspection.filename,
+
+            "prediction": inspection.prediction,
+
+            "confidence": confidence,
+
+            "confidence_percent": round(
+                confidence * 100,
+                2
+            ) if confidence <= 1 else round(
+                confidence,
+                2
+            ),
+
+            "defect": bool(
+                inspection.defect
+            ),
+
+            "defectType": defect_type,
+
+            "defect_type": defect_type,
+
+            "defectClassification": defect_type,
+
+            "defect_classification": defect_type,
+
+            "sizeScore": 0,
+
+            "locationScore": 0,
+
+            "defectTypeScore": 0,
+
+            "confidenceScore": round(
+                confidence * 100,
+                2
+            ) if confidence <= 1 else round(
+                confidence,
+                2
+            ),
+
+            "severityScore": severity_score,
+
+            "severity_score": severity_score,
+
+            "severityLevel": (
+                inspection.severity_level
+                or "Low"
+            ),
+
+            "severity_level": (
+                inspection.severity_level
+                or "Low"
+            ),
+
+            "qualityDecision": (
+                quality_decision
+            ),
+
+            "quality_decision": (
+                quality_decision
+            ),
+
+            "recommendedAction": (
+                inspection.recommended_action
+                or ""
+            ),
+
+            "recommended_action": (
+                inspection.recommended_action
+                or ""
+            ),
+
+            "inspectedBy": (
+                inspection.inspected_by
+                or user_email
+            ),
+
+            "inspected_by": (
+                inspection.inspected_by
+                or user_email
+            ),
+
+            "inspectedByName": (
+                current_user.get(
+                    "full_name",
+                    "User"
+                )
+            ),
+
+            "role": (
+                current_user.get(
+                    "role",
+                    "Quality Engineer"
+                )
+            ),
+
+            "createdAt": (
+                inspection.inspection_time.isoformat()
+                if inspection.inspection_time
+                else None
+            ),
+
+            "inspection_time": (
+                inspection.inspection_time.isoformat()
+                if inspection.inspection_time
+                else None
+            ),
+
+            "status": (
+                "Defective"
+                if inspection.defect
+                else "Passed"
+            ),
+        })
+
+    return {
+        "email": user_email,
+        "total": len(results),
+        "inspections": results
+    }
+
+
+# ============================================================
+# PRODUCTION QUALITY SUMMARY
+# ============================================================
+
 @router.get("/summary")
 def production_quality_report(
     db: Session = Depends(get_db),
@@ -85,10 +282,6 @@ def production_quality_report(
 
     for inspection in inspections:
 
-        # =====================================================
-        # PREDICTION
-        # =====================================================
-
         prediction = str(
             inspection.prediction or ""
         ).strip().lower()
@@ -108,11 +301,9 @@ def production_quality_report(
         ]:
             defective += 1
 
-        # =====================================================
-        # DEFECT TYPE
-        # =====================================================
-
-        raw_defect = inspection.defect_classification
+        raw_defect = (
+            inspection.defect_classification
+        )
 
         normalized_defect = normalize_defect_name(
             raw_defect
@@ -124,33 +315,40 @@ def production_quality_report(
         ]:
 
             defect_types[normalized_defect] = (
-                defect_types.get(normalized_defect, 0) + 1
+                defect_types.get(
+                    normalized_defect,
+                    0
+                ) + 1
             )
 
-        # =====================================================
-        # CONFIDENCE
-        # =====================================================
-
-        confidence = inspection.confidence
+        confidence = (
+            inspection.confidence
+        )
 
         if confidence is not None:
 
             try:
-                confidence = float(confidence)
+
+                confidence = float(
+                    confidence
+                )
 
                 if confidence <= 1:
                     confidence *= 100
 
-                confidence_values.append(confidence)
+                confidence_values.append(
+                    confidence
+                )
 
-            except (ValueError, TypeError):
+            except (
+                ValueError,
+                TypeError
+            ):
                 pass
 
-        # =====================================================
-        # SEVERITY LEVEL
-        # =====================================================
-
-        severity = inspection.severity_level
+        severity = (
+            inspection.severity_level
+        )
 
         if severity:
 
@@ -170,27 +368,29 @@ def production_quality_report(
             elif severity == "critical":
                 critical += 1
 
-        # =====================================================
-        # SEVERITY SCORE
-        # =====================================================
-
-        severity_score = inspection.severity_score
+        severity_score = (
+            inspection.severity_score
+        )
 
         if severity_score is not None:
 
             try:
+
                 severity_values.append(
-                    float(severity_score)
+                    float(
+                        severity_score
+                    )
                 )
 
-            except (ValueError, TypeError):
+            except (
+                ValueError,
+                TypeError
+            ):
                 pass
 
-        # =====================================================
-        # QUALITY DECISION
-        # =====================================================
-
-        decision = inspection.quality_decision
+        decision = (
+            inspection.quality_decision
+        )
 
         if decision:
 
@@ -209,10 +409,6 @@ def production_quality_report(
                 "fail"
             ]:
                 reject_count += 1
-
-    # =========================================================
-    # CALCULATIONS
-    # =========================================================
 
     defect_rate = (
         round(
@@ -251,10 +447,6 @@ def production_quality_report(
         if severity_values
         else 0
     )
-
-    # =========================================================
-    # FINAL REPORT
-    # =========================================================
 
     return {
 

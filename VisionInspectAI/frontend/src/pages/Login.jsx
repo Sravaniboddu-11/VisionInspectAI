@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { replaceInspections } from "../utils/inspectionStorage";
 import "./Login.css";
 
 function Login() {
@@ -15,80 +16,220 @@ function Login() {
     e.preventDefault();
 
     if (!email || !password || !role) {
-      alert("Please enter email, password and select your role.");
+      alert(
+        "Please enter email, password and select your role."
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/login", {
-        email: email.trim(),
-        password: password,
-      });
 
-      console.log("LOGIN RESPONSE:", response.data);
+      // ======================================================
+      // LOGIN
+      // ======================================================
 
-      const user = response.data.user;
+      const response = await api.post(
+        "/auth/login",
+        {
+          email: email.trim(),
+          password: password,
+        }
+      );
+
+      console.log(
+        "LOGIN RESPONSE:",
+        response.data
+      );
+
+      const user =
+        response.data.user;
 
       if (!user) {
-        alert("Login successful, but user details were not received.");
-        return;
-      }
-
-      if (user.role !== role) {
         alert(
-          `Role mismatch.\n\nThis account is registered as: ${user.role}`
+          "Login successful, but user details were not received."
         );
         return;
       }
 
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // ======================================================
+      // ROLE CHECK
+      // ======================================================
 
-      alert(`Welcome ${user.full_name}!`);
+      if (user.role !== role) {
 
-      if (user.role === "Factory Supervisor") {
-        navigate("/supervisor");
-      } else if (user.role === "Quality Engineer") {
-        navigate("/dashboard");
-      } else {
-        alert("Unknown user role.");
+        alert(
+          `Role mismatch.\n\nThis account is registered as: ${user.role}`
+        );
+
+        return;
       }
+
+      // ======================================================
+      // SAVE LOGIN
+      // ======================================================
+
+      const token =
+        response.data.access_token;
+
+      localStorage.setItem(
+        "token",
+        token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(user)
+      );
+
+      // ======================================================
+      // LOAD USER'S PERSISTENT INSPECTION HISTORY
+      // ======================================================
+
+      try {
+
+        const inspectionResponse =
+          await api.get(
+            "/reports/my-inspections",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const savedInspections =
+          inspectionResponse.data?.inspections;
+
+        replaceInspections(
+          Array.isArray(
+            savedInspections
+          )
+            ? savedInspections
+            : []
+        );
+
+        console.log(
+          "Previous inspections loaded:",
+          Array.isArray(
+            savedInspections
+          )
+            ? savedInspections.length
+            : 0
+        );
+
+      } catch (historyError) {
+
+        console.error(
+          "Inspection history loading error:",
+          historyError
+        );
+
+        // Login should still continue
+        // even if history loading fails.
+        replaceInspections([]);
+      }
+
+      // ======================================================
+      // SUCCESS
+      // ======================================================
+
+      alert(
+        `Welcome ${user.full_name}!`
+      );
+
+      if (
+        user.role ===
+        "Factory Supervisor"
+      ) {
+
+        navigate(
+          "/supervisor"
+        );
+
+      } else if (
+        user.role ===
+        "Quality Engineer"
+      ) {
+
+        navigate(
+          "/dashboard"
+        );
+
+      } else {
+
+        alert(
+          "Unknown user role."
+        );
+      }
+
     } catch (error) {
-      console.error("Login Error:", error);
+
+      console.error(
+        "Login Error:",
+        error
+      );
 
       if (error.response) {
-        console.log("STATUS:", error.response.status);
-        console.log("BACKEND ERROR:", error.response.data);
+
+        console.log(
+          "STATUS:",
+          error.response.status
+        );
+
+        console.log(
+          "BACKEND ERROR:",
+          error.response.data
+        );
 
         const backendMessage =
           error.response.data?.detail ||
           error.response.data?.message ||
           "Login failed.";
 
-        alert(`Login failed:\n\n${backendMessage}`);
+        alert(
+          `Login failed:\n\n${backendMessage}`
+        );
+
       } else if (error.request) {
-        console.log("No response received from backend.");
+
+        console.log(
+          "No response received from backend."
+        );
+
         alert(
           "Cannot connect to backend.\n\nPlease check the backend URL and CORS settings."
         );
+
       } else {
-        alert(`Request error:\n\n${error.message}`);
+
+        alert(
+          `Request error:\n\n${error.message}`
+        );
       }
+
     } finally {
+
       setLoading(false);
     }
   };
 
   return (
     <div className="login-page">
+
       <div className="login-container">
 
         <div className="login-left">
-          <div className="brand-icon">🔍</div>
 
-          <h1>VisionInspectAI</h1>
+          <div className="brand-icon">
+            🔍
+          </div>
+
+          <h1>
+            VisionInspectAI
+          </h1>
 
           <h2>
             Smart Manufacturing
@@ -97,23 +238,37 @@ function Login() {
           </h2>
 
           <p>
-            AI-powered visual inspection for reliable and efficient
+            AI-powered visual inspection
+            for reliable and efficient
             manufacturing quality control.
           </p>
 
           <div className="login-features">
-            <p>✓ Automated Defect Detection</p>
-            <p>✓ Quality Monitoring</p>
-            <p>✓ Production Analytics</p>
+
+            <p>
+              ✓ Automated Defect Detection
+            </p>
+
+            <p>
+              ✓ Quality Monitoring
+            </p>
+
+            <p>
+              ✓ Production Analytics
+            </p>
+
           </div>
         </div>
 
         <div className="login-card">
+
           <div className="login-kicker">
             QUALITY CONTROL PLATFORM
           </div>
 
-          <h2>Welcome Back</h2>
+          <h2>
+            Welcome Back
+          </h2>
 
           <p className="login-subtitle">
             Sign in to access your inspection workspace
@@ -121,57 +276,88 @@ function Login() {
 
           <form onSubmit={loginUser}>
 
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">
+              Email Address
+            </label>
 
             <input
               id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               required
             />
 
-            <label htmlFor="role">Select Role</label>
+            <label htmlFor="role">
+              Select Role
+            </label>
 
             <select
               id="role"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) =>
+                setRole(e.target.value)
+              }
               required
             >
-              <option value="">Select your role</option>
+
+              <option value="">
+                Select your role
+              </option>
+
               <option value="Quality Engineer">
                 Quality Engineer
               </option>
+
               <option value="Factory Supervisor">
                 Factory Supervisor
               </option>
+
             </select>
 
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">
+              Password
+            </label>
 
             <input
               id="password"
               type="password"
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               required
             />
 
-            <button type="submit" disabled={loading}>
-              {loading ? "Signing In..." : "Sign In"}
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Signing In..."
+                : "Sign In"}
             </button>
+
           </form>
 
           <p className="register-link">
+
             Don't have an account?{" "}
-            <Link to="/register">Create Account</Link>
+
+            <Link to="/register">
+              Create Account
+            </Link>
+
           </p>
+
         </div>
 
       </div>
+
     </div>
   );
 }

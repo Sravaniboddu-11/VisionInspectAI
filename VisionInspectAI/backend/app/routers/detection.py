@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
 from ultralytics import YOLO
+from sqlalchemy.orm import Session
 
 from app.utils.jwt_handler import get_current_user
 from app.services.image_quality import analyze_image_quality
+from app.database.database import get_db
+from app.models.inspection import Inspection
 
 
 router = APIRouter(
@@ -24,6 +27,7 @@ if not MODEL_PATH.exists():
     raise FileNotFoundError(
         f"YOLO model not found at: {MODEL_PATH}"
     )
+
 
 model = YOLO(str(MODEL_PATH))
 
@@ -151,7 +155,8 @@ def get_recommended_action(quality_assessment):
 @router.post("/predict")
 async def predict_image(
     request: DetectionRequest,
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
 
     backend_dir = Path(__file__).resolve().parents[2]
@@ -320,11 +325,63 @@ async def predict_image(
             )
         )
 
+        # =====================================================
+        # SAVE INSPECTION TO POSTGRESQL
+        # =====================================================
+
+        try:
+
+            inspection_record = Inspection(
+                filename=request.filename,
+                prediction=prediction,
+                confidence=highest_confidence,
+                defect=defect,
+                defect_classification=defect_classification,
+                severity_score=overall_severity,
+                severity_level=severity_level,
+                quality_decision=quality_assessment.upper(),
+                recommended_action=recommended_action,
+                inspected_by=current_user["email"],
+            )
+
+            db.add(inspection_record)
+            db.commit()
+            db.refresh(inspection_record)
+
+            print(
+                "Inspection saved to database:",
+                inspection_record.id,
+                current_user["email"]
+            )
+
+        except Exception as db_error:
+
+            db.rollback()
+
+            print(
+                "Inspection Database Save Error:",
+                db_error
+            )
+
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    "Inspection was completed but could not "
+                    "be saved to the database."
+                )
+            )
+
+        # =====================================================
+        # RETURN RESULT
+        # =====================================================
+
         return {
 
             "message": (
                 "Inspection completed successfully"
             ),
+
+            "id": inspection_record.id,
 
             "filename": request.filename,
 
