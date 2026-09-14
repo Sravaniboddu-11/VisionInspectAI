@@ -86,45 +86,48 @@ function DefectAnalysis() {
 
     if (
       normalized === "broken_small" ||
-      normalized.includes("broken_small")
+      normalized.includes("broken_small") ||
+      normalized.includes("small_broken") ||
+      normalized.includes("broken_small_defect")
     ) {
       return "Broken Small";
     }
 
     if (
       normalized === "broken_large" ||
-      normalized.includes("broken_large")
+      normalized.includes("broken_large") ||
+      normalized.includes("large_broken") ||
+      normalized.includes("broken_large_defect")
     ) {
       return "Broken Large";
     }
 
     if (
-      normalized.includes("contamination")
+      normalized.includes("contamination") ||
+      normalized.includes("contaminated")
     ) {
       return "Contamination";
     }
 
     if (
+      normalized.includes("manufacturing_defect") ||
       normalized.includes("manufacturing")
     ) {
       return "Manufacturing Defect";
     }
 
     if (
-      normalized.includes("missing_component")
+      normalized.includes("missing_component") ||
+      normalized.includes("missing_part")
     ) {
       return "Missing Component";
     }
 
-    if (
-      normalized.includes("crack")
-    ) {
+    if (normalized.includes("crack")) {
       return "Crack";
     }
 
-    if (
-      normalized.includes("scratch")
-    ) {
+    if (normalized.includes("scratch")) {
       return "Scratch";
     }
 
@@ -153,16 +156,16 @@ function DefectAnalysis() {
       ([name, count]) => {
         const cleanName = String(name)
           .trim()
-          .toLowerCase();
+          .toLowerCase()
+          .replaceAll("-", "_")
+          .replaceAll(" ", "_");
 
         if (
           !cleanName ||
           cleanName === "none" ||
-          cleanName === "no defect" ||
           cleanName === "no_defect" ||
           cleanName === "unknown" ||
-          cleanName ===
-            "unknown / unclassified"
+          cleanName === "unknown_unclassified"
         ) {
           return;
         }
@@ -178,15 +181,14 @@ function DefectAnalysis() {
         }
 
         normalizedDefects[normalizedName] =
-          (normalizedDefects[normalizedName] ||
-            0) + numericCount;
+          (normalizedDefects[normalizedName] || 0) +
+          numericCount;
       }
     );
 
-    return Object.entries(normalizedDefects)
-      .sort(
-        ([, a], [, b]) => b - a
-      );
+    return Object.entries(normalizedDefects).sort(
+      ([, a], [, b]) => b - a
+    );
   }, [report]);
 
   const maxDefectCount =
@@ -247,14 +249,6 @@ function DefectAnalysis() {
   // ============================================================
   // TOTAL CLASSIFIED DEFECTS
   // ============================================================
-
-  /*
-    This total is based on all defect classifications
-    returned by the backend.
-
-    It allows Broken Small to appear even when its
-    quality decision is REVIEW instead of REJECT.
-  */
 
   const totalClassifiedDefects =
     defectTypes.reduce(
