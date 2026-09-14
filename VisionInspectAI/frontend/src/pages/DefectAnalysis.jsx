@@ -1,7 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-const API_URL = "https://visioninspectai-backend-lnih.onrender.com";
+
+const API_URL =
+  "https://visioninspectai-backend-lnih.onrender.com";
 
 function DefectAnalysis() {
   const navigate = useNavigate();
@@ -49,7 +56,10 @@ function DefectAnalysis() {
 
       setReport(data);
     } catch (err) {
-      console.error("Defect analysis error:", err);
+      console.error(
+        "Defect analysis error:",
+        err
+      );
 
       setError(
         "Unable to load defect analysis data."
@@ -64,6 +74,71 @@ function DefectAnalysis() {
   }, []);
 
   // ============================================================
+  // NORMALIZE DEFECT NAME
+  // ============================================================
+
+  const normalizeDefectName = (name) => {
+    const normalized = String(name)
+      .trim()
+      .toLowerCase()
+      .replaceAll("-", "_")
+      .replaceAll(" ", "_");
+
+    if (
+      normalized === "broken_small" ||
+      normalized.includes("broken_small")
+    ) {
+      return "Broken Small";
+    }
+
+    if (
+      normalized === "broken_large" ||
+      normalized.includes("broken_large")
+    ) {
+      return "Broken Large";
+    }
+
+    if (
+      normalized.includes("contamination")
+    ) {
+      return "Contamination";
+    }
+
+    if (
+      normalized.includes("manufacturing")
+    ) {
+      return "Manufacturing Defect";
+    }
+
+    if (
+      normalized.includes("missing_component")
+    ) {
+      return "Missing Component";
+    }
+
+    if (
+      normalized.includes("crack")
+    ) {
+      return "Crack";
+    }
+
+    if (
+      normalized.includes("scratch")
+    ) {
+      return "Scratch";
+    }
+
+    return String(name)
+      .trim()
+      .replaceAll("_", " ")
+      .replaceAll("-", " ")
+      .replace(
+        /\b\w/g,
+        (letter) => letter.toUpperCase()
+      );
+  };
+
+  // ============================================================
   // DEFECT TYPES
   // ============================================================
 
@@ -72,18 +147,55 @@ function DefectAnalysis() {
       return [];
     }
 
-    return Object.entries(report.defect_types)
-      .filter(
-        ([name]) =>
-          name !== "No Defect" &&
-          name !== "Unknown / Unclassified"
-      )
-      .sort((a, b) => b[1] - a[1]);
+    const normalizedDefects = {};
+
+    Object.entries(report.defect_types).forEach(
+      ([name, count]) => {
+        const cleanName = String(name)
+          .trim()
+          .toLowerCase();
+
+        if (
+          !cleanName ||
+          cleanName === "none" ||
+          cleanName === "no defect" ||
+          cleanName === "no_defect" ||
+          cleanName === "unknown" ||
+          cleanName ===
+            "unknown / unclassified"
+        ) {
+          return;
+        }
+
+        const normalizedName =
+          normalizeDefectName(name);
+
+        const numericCount =
+          Number(count) || 0;
+
+        if (numericCount <= 0) {
+          return;
+        }
+
+        normalizedDefects[normalizedName] =
+          (normalizedDefects[normalizedName] ||
+            0) + numericCount;
+      }
+    );
+
+    return Object.entries(normalizedDefects)
+      .sort(
+        ([, a], [, b]) => b - a
+      );
   }, [report]);
 
   const maxDefectCount =
     defectTypes.length > 0
-      ? Math.max(...defectTypes.map((item) => item[1]))
+      ? Math.max(
+          ...defectTypes.map(
+            (item) => item[1]
+          )
+        )
       : 1;
 
   // ============================================================
@@ -105,14 +217,23 @@ function DefectAnalysis() {
   const averageConfidence =
     Number(report?.average_confidence) || 0;
 
-  const severity = report?.severity || {};
+  const severity =
+    report?.severity || {};
 
-  const decisions = report?.decisions || {};
+  const decisions =
+    report?.decisions || {};
 
-  const low = Number(severity.low) || 0;
-  const medium = Number(severity.medium) || 0;
-  const high = Number(severity.high) || 0;
-  const critical = Number(severity.critical) || 0;
+  const low =
+    Number(severity.low) || 0;
+
+  const medium =
+    Number(severity.medium) || 0;
+
+  const high =
+    Number(severity.high) || 0;
+
+  const critical =
+    Number(severity.critical) || 0;
 
   const pass =
     Number(decisions.pass) || 0;
@@ -122,6 +243,25 @@ function DefectAnalysis() {
 
   const reject =
     Number(decisions.reject) || 0;
+
+  // ============================================================
+  // TOTAL CLASSIFIED DEFECTS
+  // ============================================================
+
+  /*
+    This total is based on all defect classifications
+    returned by the backend.
+
+    It allows Broken Small to appear even when its
+    quality decision is REVIEW instead of REJECT.
+  */
+
+  const totalClassifiedDefects =
+    defectTypes.reduce(
+      (sum, [, count]) =>
+        sum + Number(count),
+      0
+    );
 
   // ============================================================
   // LOADING
@@ -374,12 +514,16 @@ function DefectAnalysis() {
                 ([name, count]) => {
 
                   const percentage =
-                    defective > 0
-                      ? (count / defective) * 100
+                    totalClassifiedDefects > 0
+                      ? (Number(count) /
+                          totalClassifiedDefects) *
+                        100
                       : 0;
 
                   const width =
-                    (count / maxDefectCount) * 100;
+                    (Number(count) /
+                      maxDefectCount) *
+                    100;
 
                   return (
                     <div

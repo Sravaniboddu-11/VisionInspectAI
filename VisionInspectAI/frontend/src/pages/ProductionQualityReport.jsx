@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
 import SupervisorNavbar from "../components/SupervisorNavbar";
 import { getInspections } from "../utils/inspectionStorage";
 
@@ -28,6 +29,7 @@ export default function ProductionQualityReport() {
     };
 
     window.addEventListener("storage", handleStorage);
+
     document.addEventListener(
       "visibilitychange",
       handleVisibility
@@ -39,10 +41,12 @@ export default function ProductionQualityReport() {
 
     return () => {
       clearInterval(interval);
+
       window.removeEventListener(
         "storage",
         handleStorage
       );
+
       document.removeEventListener(
         "visibilitychange",
         handleVisibility
@@ -184,9 +188,6 @@ export default function ProductionQualityReport() {
 
       // --------------------------------------------------------
       // CONFIDENCE
-      //
-      // Keep confidence calculation consistent with
-      // the existing analytics/reporting data.
       // --------------------------------------------------------
 
       let confidenceValue =
@@ -231,13 +232,81 @@ export default function ProductionQualityReport() {
         );
       }
 
-      // --------------------------------------------------------
+      // ========================================================
+      // DEFECT CLASSIFICATION
+      //
+      // Count defect classifications for both:
+      // - REVIEW
+      // - REJECT
+      //
+      // PASS products are not counted as defects.
+      // ========================================================
+
+      const hasDefectDecision =
+        qualityDecision === "REVIEW" ||
+        qualityDecision === "REJECT";
+
+      if (hasDefectDecision) {
+        const rawDefectType =
+          inspection?.defectClassification ??
+          inspection?.defect_classification ??
+          inspection?.defectType ??
+          inspection?.defect_type ??
+          inspection?.classification ??
+          null;
+
+        let defectType = null;
+
+        if (
+          rawDefectType !== null &&
+          rawDefectType !== undefined
+        ) {
+          const cleanType =
+            String(rawDefectType).trim();
+
+          const lowerType =
+            cleanType.toLowerCase();
+
+          if (
+            cleanType &&
+            lowerType !== "none" &&
+            lowerType !== "no defect" &&
+            lowerType !== "no_defect" &&
+            lowerType !== "unknown" &&
+            lowerType !==
+              "unknown / unclassified"
+          ) {
+            defectType =
+              normalizeDefectName(
+                cleanType
+              );
+          }
+        }
+
+        if (defectType) {
+          defectTypes[defectType] =
+            (
+              defectTypes[defectType] ||
+              0
+            ) + 1;
+        } else {
+          defectTypes[
+            "Manufacturing Defect"
+          ] =
+            (
+              defectTypes[
+                "Manufacturing Defect"
+              ] || 0
+            ) + 1;
+        }
+      }
+
+      // ========================================================
       // ONLY CONFIRMED REJECTED PRODUCTS
-        // contribute to:
-        // - Defect Type
-        // - Severity
-        // - Average Severity
-      // --------------------------------------------------------
+      // contribute to:
+      // - Severity
+      // - Average Severity
+      // ========================================================
 
       const confirmedDefective =
         qualityDecision === "REJECT";
@@ -247,71 +316,17 @@ export default function ProductionQualityReport() {
       }
 
       // --------------------------------------------------------
-      // DEFECT CLASSIFICATION
-      // --------------------------------------------------------
-
-      const rawDefectType =
-        inspection?.defectClassification ??
-        inspection?.defect_classification ??
-        inspection?.defectType ??
-        inspection?.defect_type ??
-        inspection?.classification ??
-        null;
-
-      let defectType = null;
-
-      if (
-        rawDefectType !== null &&
-        rawDefectType !== undefined
-      ) {
-        const cleanType =
-          String(rawDefectType).trim();
-
-        const lowerType =
-          cleanType.toLowerCase();
-
-        if (
-          cleanType &&
-          lowerType !== "none" &&
-          lowerType !== "no defect" &&
-          lowerType !== "no_defect" &&
-          lowerType !== "unknown" &&
-          lowerType !==
-            "unknown / unclassified"
-        ) {
-          defectType =
-            normalizeDefectName(
-              cleanType
-            );
-        }
-      }
-
-      if (defectType) {
-        defectTypes[defectType] =
-          (defectTypes[defectType] ||
-            0) + 1;
-      } else {
-        defectTypes[
-          "Manufacturing Defect"
-        ] =
-          (defectTypes[
-            "Manufacturing Defect"
-          ] || 0) + 1;
-      }
-
-      // --------------------------------------------------------
       // SEVERITY LEVEL
       // --------------------------------------------------------
 
-      const severityLevel =
-        String(
-          inspection?.severityLevel ??
-            inspection?.severity_level ??
-            inspection?.severity ??
-            ""
-        )
-          .trim()
-          .toLowerCase();
+      const severityLevel = String(
+        inspection?.severityLevel ??
+          inspection?.severity_level ??
+          inspection?.severity ??
+          ""
+      )
+        .trim()
+        .toLowerCase();
 
       if (
         severityLevel === "low"
@@ -358,9 +373,9 @@ export default function ProductionQualityReport() {
       }
     });
 
-    // ==========================================================
+    // ============================================================
     // CALCULATIONS
-    // ==========================================================
+    // ============================================================
 
     const defectRate =
       total > 0
@@ -401,9 +416,9 @@ export default function ProductionQualityReport() {
           )
         : 0;
 
-    // ==========================================================
+    // ============================================================
     // RETURN REPORT
-    // ==========================================================
+    // ============================================================
 
     return {
       report_name:
@@ -460,28 +475,26 @@ export default function ProductionQualityReport() {
   function inferDecisionFromInspection(
     inspection
   ) {
-    const prediction =
-      String(
-        inspection?.prediction ??
-          ""
-      )
-        .trim()
-        .toLowerCase();
+    const prediction = String(
+      inspection?.prediction ??
+        ""
+    )
+      .trim()
+      .toLowerCase();
 
     const defect =
       inspection?.defect === true;
 
-    const defectType =
-      String(
-        inspection?.defectClassification ??
-          inspection?.defect_classification ??
-          inspection?.defectType ??
-          inspection?.defect_type ??
-          inspection?.classification ??
-          ""
-      )
-        .trim()
-        .toLowerCase();
+    const defectType = String(
+      inspection?.defectClassification ??
+        inspection?.defect_classification ??
+        inspection?.defectType ??
+        inspection?.defect_type ??
+        inspection?.classification ??
+        ""
+    )
+      .trim()
+      .toLowerCase();
 
     if (
       prediction === "passed" ||
@@ -537,10 +550,9 @@ export default function ProductionQualityReport() {
   function normalizeDefectName(
     name
   ) {
-    const normalized =
-      String(name)
-        .trim()
-        .toLowerCase();
+    const normalized = String(name)
+      .trim()
+      .toLowerCase();
 
     if (
       normalized ===
@@ -638,10 +650,9 @@ export default function ProductionQualityReport() {
       return "Unknown";
     }
 
-    const normalized =
-      String(name)
-        .trim()
-        .toLowerCase();
+    const normalized = String(name)
+      .trim()
+      .toLowerCase();
 
     if (
       normalized ===
@@ -720,6 +731,15 @@ export default function ProductionQualityReport() {
     const generatedAt =
       new Date().toLocaleString();
 
+    const totalDefectClassifications =
+      Object.values(
+        report.defect_types || {}
+      ).reduce(
+        (sum, count) =>
+          sum + Number(count),
+        0
+      );
+
     const defectRows =
       Object.entries(
         report.defect_types || {}
@@ -731,14 +751,11 @@ export default function ProductionQualityReport() {
         )
         .map(
           ([type, count]) => {
-            const totalDefects =
-              report.defective_products;
-
             const percentage =
-              totalDefects > 0
+              totalDefectClassifications > 0
                 ? (
                     (Number(count) /
-                      totalDefects) *
+                      totalDefectClassifications) *
                     100
                   ).toFixed(1)
                 : "0.0";
@@ -1237,7 +1254,7 @@ ${
   `
   <tr>
     <td colspan="3">
-      No confirmed defect data available
+      No defect data available
     </td>
   </tr>
   `
@@ -1256,26 +1273,22 @@ Defect classification
 </h3>
 
 <p>
-Defect classification organizes confirmed
-quality problems into meaningful categories
-such as broken components, cracks, scratches,
-missing components, contamination, or other
-manufacturing defects.
+Defect classification organizes quality problems
+into meaningful categories such as broken components,
+cracks, scratches, missing components, contamination,
+or other manufacturing defects.
 </p>
 
 <p>
-The count of each defect type indicates how
-frequently that category occurred among the
-confirmed defective products. The percentage
-represents that category's contribution to the
-total number of confirmed defects.
+The count of each defect type indicates how frequently
+that category occurred among the inspection results
+classified as REVIEW or REJECT.
 </p>
 
 <p>
-Frequently occurring defect categories can
-indicate recurring manufacturing problems and
-may require further investigation of the
-production process.
+Frequently occurring defect categories can indicate
+recurring manufacturing problems and may require
+further investigation of the production process.
 </p>
 
 </div>
@@ -1838,6 +1851,15 @@ Inspection System
   // RENDER REPORT
   // ============================================================
 
+  const totalDefectClassifications =
+    Object.values(
+      report.defect_types || {}
+    ).reduce(
+      (sum, count) =>
+        sum + Number(count),
+      0
+    );
+
   return (
     <div
       style={
@@ -2014,7 +2036,7 @@ Inspection System
               }
             >
               {
-                report.defective_products
+                totalDefectClassifications
               }{" "}
               Total Defects
             </div>
@@ -2084,16 +2106,13 @@ Inspection System
                       ]
                     ) => {
 
-                      const totalDefects =
-                        report.defective_products;
-
                       const percentage =
-                        totalDefects > 0
+                        totalDefectClassifications > 0
                           ? (
                               (Number(
                                 count
                               ) /
-                                totalDefects) *
+                                totalDefectClassifications) *
                               100
                             ).toFixed(
                               1
@@ -2139,6 +2158,7 @@ Inspection System
 
                         </tr>
                       );
+
                     }
                   )}
 
@@ -2155,7 +2175,7 @@ Inspection System
                         styles.emptyCell
                       }
                     >
-                      No confirmed defect data available
+                      No defect data available
                     </td>
 
                   </tr>
@@ -3060,4 +3080,5 @@ const styles = {
     fontSize:
       "13px",
   },
+
 };
