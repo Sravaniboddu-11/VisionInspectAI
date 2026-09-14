@@ -4,16 +4,19 @@ import api from "../services/api";
 import { saveInspection } from "../utils/inspectionStorage";
 import "./Detection.css";
 
-const BACKEND_URL = "https://visioninspectai-jvbu.onrender.com";
+const BACKEND_URL =
+  "https://visioninspectai-backend-lnih.onrender.com";
 
 function Detection() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const uploadedImage = localStorage.getItem("uploadedImage");
+  const uploadedImage =
+    localStorage.getItem("uploadedImage");
 
   const runDetection = async () => {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
     if (!token) {
       alert("Please login again.");
@@ -21,7 +24,9 @@ function Detection() {
     }
 
     if (!uploadedImage) {
-      alert("Please upload a product image first.");
+      alert(
+        "Please upload a product image first."
+      );
       return;
     }
 
@@ -43,57 +48,79 @@ function Detection() {
 
       const data = response.data;
 
-      console.log("Backend Detection Response:", data);
-
-      const severity = data.severity || {};
-      const qualityControl = data.quality_control || {};
-      const imageQuality = data.image_quality || {};
-
-      const confidence = Number(data.confidence || 0);
-
-      const confidenceScore = Number(
-        severity.confidence_score ?? confidence * 100
+      console.log(
+        "Backend Detection Response:",
+        data
       );
+
+      const severity =
+        data.severity || {};
+
+      const qualityControl =
+        data.quality_control || {};
+
+      const imageQuality =
+        data.image_quality || {};
+
+      const confidence =
+        Number(data.confidence || 0);
+
+      const confidenceScore =
+        Number(
+          severity.confidence_score ??
+            confidence * 100
+        );
 
       const inspectionData = {
         id: Date.now(),
 
-        filename: data.filename || uploadedImage,
+        filename:
+          data.filename ||
+          uploadedImage,
 
-        prediction: data.prediction || "Unknown",
+        prediction:
+          data.prediction ||
+          "Unknown",
 
-        confidence: confidence,
+        confidence:
+          confidence,
 
-        defect: data.defect === true,
+        defect:
+          data.defect === true,
 
         defectType:
           data.defect_classification ||
           "No Defect",
 
-        image_quality: imageQuality,
+        image_quality:
+          imageQuality,
 
-        sizeScore: Number(
-          severity.size_score ?? 0
-        ),
+        sizeScore:
+          Number(
+            severity.size_score ?? 0
+          ),
 
-        locationScore: Number(
-          severity.location_score ?? 0
-        ),
+        locationScore:
+          Number(
+            severity.location_score ?? 0
+          ),
 
-        defectTypeScore: Number(
-          severity.defect_type_score ?? 0
-        ),
+        defectTypeScore:
+          Number(
+            severity.defect_type_score ?? 0
+          ),
 
-        confidenceScore: Number(
-          confidenceScore
-        ),
+        confidenceScore:
+          Number(confidenceScore),
 
-        severityScore: Number(
-          severity.overall_score ?? 0
-        ),
+        severityScore:
+          Number(
+            severity.overall_score ?? 0
+          ),
 
         severityLevel:
-          severity.level || "Low",
+          severity.level ||
+          "Low",
 
         qualityDecision:
           qualityControl.decision ||
@@ -120,18 +147,25 @@ function Detection() {
         inspectionData
       );
 
-      setResult(inspectionData);
+      setResult(
+        inspectionData
+      );
 
       localStorage.setItem(
         "inspectionResult",
-        JSON.stringify(inspectionData)
+        JSON.stringify(
+          inspectionData
+        )
       );
 
-      saveInspection(inspectionData);
+      saveInspection(
+        inspectionData
+      );
 
       alert(
         "Inspection completed successfully!"
       );
+
     } catch (error) {
       console.error(
         "Detection Error:",
@@ -149,15 +183,54 @@ function Detection() {
           error.response.data
         );
 
-        const backendMessage =
-          error.response.data?.detail ||
-          error.response.data?.message ||
+        const data =
+          error.response.data;
+
+        let backendMessage =
           "Detection failed.";
+
+        if (
+          typeof data?.detail ===
+          "string"
+        ) {
+          backendMessage =
+            data.detail;
+
+        } else if (
+          data?.detail
+        ) {
+          backendMessage =
+            JSON.stringify(
+              data.detail,
+              null,
+              2
+            );
+
+        } else if (
+          typeof data?.message ===
+          "string"
+        ) {
+          backendMessage =
+            data.message;
+
+        } else if (
+          data
+        ) {
+          backendMessage =
+            JSON.stringify(
+              data,
+              null,
+              2
+            );
+        }
 
         alert(
           `Detection failed:\n\n${backendMessage}`
         );
-      } else if (error.request) {
+
+      } else if (
+        error.request
+      ) {
         console.error(
           "No response received from backend:",
           error.request
@@ -166,17 +239,21 @@ function Detection() {
         alert(
           `Cannot connect to backend.\n\n${error.message}`
         );
+
       } else {
         alert(
           `Request error:\n\n${error.message}`
         );
       }
+
     } finally {
       setLoading(false);
     }
   };
 
-  const formatPrediction = (value) => {
+  const formatPrediction = (
+    value
+  ) => {
     if (!value) {
       return "Unknown";
     }
@@ -185,40 +262,59 @@ function Detection() {
       .replaceAll("_", " ")
       .replace(
         /\b\w/g,
-        (letter) => letter.toUpperCase()
+        (letter) =>
+          letter.toUpperCase()
       );
   };
 
-  const getDecisionClass = (decision) => {
-    const value = String(decision || "")
-      .trim()
-      .toUpperCase();
+  const getDecisionClass = (
+    decision
+  ) => {
+    const value =
+      String(
+        decision || ""
+      )
+        .trim()
+        .toUpperCase();
 
     if (value === "PASS") {
       return "decision-pass";
     }
 
-    if (value === "REJECT") {
+    if (
+      value === "REJECT"
+    ) {
       return "decision-reject";
     }
 
     return "decision-review";
   };
 
-  const getSeverityClass = (severity) => {
-    const value = String(severity || "")
-      .trim()
-      .toLowerCase();
+  const getSeverityClass = (
+    severity
+  ) => {
+    const value =
+      String(
+        severity || ""
+      )
+        .trim()
+        .toLowerCase();
 
-    if (value === "critical") {
+    if (
+      value === "critical"
+    ) {
       return "severity-critical";
     }
 
-    if (value === "high") {
+    if (
+      value === "high"
+    ) {
       return "severity-high";
     }
 
-    if (value === "medium") {
+    if (
+      value === "medium"
+    ) {
       return "severity-medium";
     }
 
@@ -226,18 +322,18 @@ function Detection() {
   };
 
   const quality =
-    result?.image_quality?.quality || {};
+    result?.image_quality
+      ?.quality || {};
 
   const imageInfo =
-    result?.image_quality?.image || {};
+    result?.image_quality
+      ?.image || {};
 
   return (
     <>
       <Navbar />
 
       <main className="detection-page">
-
-        {/* PAGE HEADER */}
 
         <section className="detection-header">
 
@@ -252,8 +348,9 @@ function Detection() {
             </h1>
 
             <p>
-              Analyze the uploaded product image
-              using the VisionInspectAI defect
+              Analyze the uploaded product
+              image using the
+              VisionInspectAI defect
               detection engine.
             </p>
 
@@ -269,7 +366,6 @@ function Detection() {
 
         </section>
 
-        {/* MAIN INSPECTION CARD */}
 
         <section className="detection-card">
 
@@ -286,8 +382,8 @@ function Detection() {
               </h2>
 
               <p>
-                Review the image before starting
-                AI detection.
+                Review the image before
+                starting AI detection.
               </p>
 
             </div>
@@ -304,7 +400,6 @@ function Detection() {
 
           </div>
 
-          {/* IMAGE AREA */}
 
           {uploadedImage ? (
 
@@ -363,15 +458,15 @@ function Detection() {
               </h3>
 
               <p>
-                Please upload a product image
-                before starting detection.
+                Please upload a product
+                image before starting
+                detection.
               </p>
 
             </div>
 
           )}
 
-          {/* DETECTION ACTION */}
 
           <div className="detection-action-area">
 
@@ -388,9 +483,9 @@ function Detection() {
                 </strong>
 
                 <span>
-                  Analyze product defects, image
-                  quality, severity and quality
-                  decision.
+                  Analyze product defects,
+                  image quality, severity
+                  and quality decision.
                 </span>
 
               </div>
@@ -401,7 +496,8 @@ function Detection() {
               className="run-detection-button"
               onClick={runDetection}
               disabled={
-                loading || !uploadedImage
+                loading ||
+                !uploadedImage
               }
             >
 
@@ -423,13 +519,10 @@ function Detection() {
 
         </section>
 
-        {/* RESULT */}
 
         {result && (
 
           <section className="result-section">
-
-            {/* RESULT HEADER */}
 
             <div className="result-header">
 
@@ -444,8 +537,8 @@ function Detection() {
                 </h2>
 
                 <p>
-                  AI-generated product inspection
-                  analysis.
+                  AI-generated product
+                  inspection analysis.
                 </p>
 
               </div>
@@ -464,7 +557,6 @@ function Detection() {
 
             </div>
 
-            {/* SUMMARY CARDS */}
 
             <div className="result-summary-grid">
 
@@ -486,6 +578,7 @@ function Detection() {
 
               </div>
 
+
               <div className="result-summary-card">
 
                 <span className="summary-label">
@@ -494,7 +587,8 @@ function Detection() {
 
                 <strong>
                   {(
-                    result.confidence * 100
+                    result.confidence *
+                    100
                   ).toFixed(2)}
                   %
                 </strong>
@@ -504,6 +598,7 @@ function Detection() {
                 </small>
 
               </div>
+
 
               <div className="result-summary-card">
 
@@ -529,6 +624,7 @@ function Detection() {
 
               </div>
 
+
               <div className="result-summary-card">
 
                 <span className="summary-label">
@@ -549,7 +645,6 @@ function Detection() {
 
             </div>
 
-            {/* IMAGE QUALITY */}
 
             <div className="result-panel">
 
@@ -569,6 +664,7 @@ function Detection() {
 
               </div>
 
+
               {result.image_quality ? (
 
                 <div className="analysis-grid">
@@ -580,12 +676,15 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {imageInfo.width || "-"}
+                      {imageInfo.width ||
+                        "-"}
                       {" × "}
-                      {imageInfo.height || "-"}
+                      {imageInfo.height ||
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -594,10 +693,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {imageInfo.format || "-"}
+                      {imageInfo.format ||
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -606,10 +707,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.brightness || "-"}
+                      {quality.brightness ||
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -618,10 +721,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.brightness_value ?? "-"}
+                      {quality.brightness_value ??
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -630,10 +735,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.contrast || "-"}
+                      {quality.contrast ||
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -642,10 +749,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.contrast_value ?? "-"}
+                      {quality.contrast_value ??
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -654,10 +763,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.blur || "-"}
+                      {quality.blur ||
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item">
 
@@ -666,10 +777,12 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.blur_value ?? "-"}
+                      {quality.blur_value ??
+                        "-"}
                     </strong>
 
                   </div>
+
 
                   <div className="analysis-item overall-quality">
 
@@ -678,7 +791,8 @@ function Detection() {
                     </span>
 
                     <strong>
-                      {quality.overall || "-"}
+                      {quality.overall ||
+                        "-"}
                     </strong>
 
                   </div>
@@ -695,7 +809,6 @@ function Detection() {
 
             </div>
 
-            {/* SEVERITY */}
 
             <div className="result-panel">
 
@@ -723,6 +836,7 @@ function Detection() {
 
               </div>
 
+
               <div className="severity-score-main">
 
                 <div>
@@ -733,10 +847,13 @@ function Detection() {
 
                   <strong>
                     {result.severityScore}
-                    <small>/100</small>
+                    <small>
+                      /100
+                    </small>
                   </strong>
 
                 </div>
+
 
                 <div className="severity-progress">
 
@@ -746,7 +863,8 @@ function Detection() {
                       width: `${Math.min(
                         Math.max(
                           Number(
-                            result.severityScore || 0
+                            result.severityScore ||
+                              0
                           ),
                           0
                         ),
@@ -758,6 +876,7 @@ function Detection() {
                 </div>
 
               </div>
+
 
               <div className="severity-grid">
 
@@ -773,6 +892,7 @@ function Detection() {
 
                 </div>
 
+
                 <div className="severity-item">
 
                   <span>
@@ -784,6 +904,7 @@ function Detection() {
                   </strong>
 
                 </div>
+
 
                 <div className="severity-item">
 
@@ -797,6 +918,7 @@ function Detection() {
 
                 </div>
 
+
                 <div className="severity-item">
 
                   <span>
@@ -805,7 +927,8 @@ function Detection() {
 
                   <strong>
                     {Number(
-                      result.confidenceScore || 0
+                      result.confidenceScore ||
+                        0
                     ).toFixed(0)}
                     /100
                   </strong>
@@ -816,7 +939,6 @@ function Detection() {
 
             </div>
 
-            {/* QUALITY CONTROL */}
 
             <div className="result-panel quality-control-panel">
 
@@ -844,6 +966,7 @@ function Detection() {
 
               </div>
 
+
               <div className="recommendation-box">
 
                 <div className="recommendation-icon">
@@ -866,7 +989,6 @@ function Detection() {
 
             </div>
 
-            {/* INSPECTION DETAILS */}
 
             <div className="result-panel">
 
@@ -886,6 +1008,7 @@ function Detection() {
 
               </div>
 
+
               <div className="details-grid">
 
                 <div className="detail-item">
@@ -900,6 +1023,7 @@ function Detection() {
 
                 </div>
 
+
                 <div className="detail-item">
 
                   <span>
@@ -912,6 +1036,7 @@ function Detection() {
 
                 </div>
 
+
                 <div className="detail-item">
 
                   <span>
@@ -923,6 +1048,7 @@ function Detection() {
                   </strong>
 
                 </div>
+
 
                 <div className="detail-item">
 

@@ -14,7 +14,9 @@ from app.routers.reports import router as reports_router
 # DATABASE
 # ============================================================
 
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(
+    bind=engine
+)
 
 
 # ============================================================
@@ -50,7 +52,9 @@ app.add_middleware(
 
 app.mount(
     "/uploads",
-    StaticFiles(directory="uploads"),
+    StaticFiles(
+        directory="uploads"
+    ),
     name="uploads"
 )
 
@@ -59,10 +63,21 @@ app.mount(
 # ROUTERS
 # ============================================================
 
-app.include_router(auth_router)
-app.include_router(upload_router)
-app.include_router(detection_router)
-app.include_router(reports_router)
+app.include_router(
+    auth_router
+)
+
+app.include_router(
+    upload_router
+)
+
+app.include_router(
+    detection_router
+)
+
+app.include_router(
+    reports_router
+)
 
 
 # ============================================================
@@ -72,6 +87,8 @@ app.include_router(reports_router)
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to VisionInspectAI Backend",
-        "status": "Running Successfully"
+        "message":
+            "Welcome to VisionInspectAI Backend",
+        "status":
+            "Running Successfully"
     }
